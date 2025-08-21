@@ -1,0 +1,90 @@
+:host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nxg-grid {
+  width: 100%;
+}
+
+.nxg-grid__wrapper {
+  overflow: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.nxg-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  font-size: 14px;
+}
+
+thead tr {
+  background: #fafafa;
+}
+
+th, td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+
+.nxg-th {
+  position: relative;
+}
+
+.nxg-th--sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.nxg-th__label {
+  font-weight: 600;
+}
+
+.nxg-sort {
+  margin-left: 6px;
+  opacity: 0.5;
+  font-size: 11px;
+}
+
+.nxg-sort__dir.active {
+  opacity: 1;
+  color: #1976d2;
+}
+
+.nxg-sort__index {
+  margin-left: 6px;
+  background: #1976d2;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0 6px;
+  font-size: 10px;
+}
+
+.nxg-td {
+  vertical-align: middle;
+}
+
+.nxg-tr:hover td {
+  background: #fcfcfc;
+}
+
+.nxg-tr--selected td {
+  background: #eef4ff;
+}
+
+.nxg-empty {
+  text-align: center;
+  color: #888;
+}
+
+.nxg-align-right {
+  text-align: right;
+}
+.nxg-align-center {
+  text-align: center;
+}

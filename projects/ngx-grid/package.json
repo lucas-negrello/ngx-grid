@@ -1,0 +1,26 @@
+{
+  "name": "ngx-grid",
+  "version": "0.0.1",
+  "description": "Angular powerful data grid component",
+  "author": "Lucas Negrello",
+  "license": "MIT",
+  "keywords": [
+    "angular",
+    "table",
+    "grid",
+    "ngx",
+    "data grid",
+    "data table",
+    "datatable",
+    "datagrid"
+  ],
+  "peerDependencies": {
+    "@angular/common": ">=19.0.0",
+    "@angular/core": ">=19.0.0",
+    "rxjs": ">=7.8.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

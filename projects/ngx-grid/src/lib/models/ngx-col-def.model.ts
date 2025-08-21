@@ -1,0 +1,52 @@
+import {NgxAlignment, NgxSortDirection} from './types';
+
+export interface NgxValueGetterParams<T = any> {
+  data: T;
+  colDef: NgxColDef<T>;
+  colId: string | number;
+  value: any;
+  getValue: (path: string, data?: any) => any;
+  rowIndex: number;
+}
+
+export interface NgxValueFormatterParams<T = any> extends NgxValueGetterParams<T> {}
+
+export interface NgxCellRendererParams<T = any> extends NgxValueGetterParams<T> {
+  formattedValue: string | number | null;
+  selected: boolean;
+}
+
+export interface NgxRowNode<T = any> {
+  id: number | string;
+  data: T;
+  rowIndex: number;
+  selected: boolean;
+}
+
+export interface NgxColDef<T = any> {
+  colId?: string | number;
+  field?: keyof T & string | string;
+  headerName?: string;
+  headerTooltip?: string;
+  width?: number | string;
+  sortable?: boolean;
+  sort?: NgxSortDirection;
+  sortIndex?: number;
+
+  valueGetter?: (params: NgxValueGetterParams<T>) => any;
+  valueFormatter?: (params: NgxValueFormatterParams<T>) => string | number | null;
+
+  cellRenderer?: (params: NgxCellRendererParams<T>) => string | number | null;
+  comparator?: (
+    a: any,
+    b: any,
+    nodeA: NgxRowNode<T>,
+    nodeB: NgxRowNode<T>,
+    isInverted: boolean
+  ) => number;
+
+  cellClass?: string | string[] | ((params: NgxCellRendererParams<T>) => string | string[] | null); //ver
+  align?: NgxAlignment;
+  headerAlign?: NgxAlignment;
+  sticky?: boolean;
+}
