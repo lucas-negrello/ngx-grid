@@ -1,0 +1,8 @@
+<ngx-grid
+  rowSelection="multiple"
+  (rowClicked)="event($event)"
+  (selectionChanged)="event($event)"
+  (sortChanged)="event($event)"
+  [columnDefs]="[{field: 'id', headerName: 'ID'}, {field: 'name', headerName: 'Nome'}]"
+  [rowData]="[{id: 1, name: 'Linha 1'}, {id: 2, name: 'Linha 2'}]"/>
+<router-outlet />
