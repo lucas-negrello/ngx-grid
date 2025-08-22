@@ -12,3 +12,10 @@ export interface NgxOnSelectionChangedEvent<T = any> {
 export interface NgxOnSortChangedEvent<T = any> {
   sortModel: NgxSortModelItem[];
 }
+
+export interface NgxOnPageChangedEvent<T = any> {
+  pageIndex: number;
+  pageSize: number;
+  total: number;
+  pageCount: number;
+}

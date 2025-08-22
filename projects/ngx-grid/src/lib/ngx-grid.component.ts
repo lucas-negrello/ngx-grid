@@ -9,10 +9,15 @@ import {
   signal, TrackByFunction
 } from '@angular/core';
 import {Observable, Subscription} from 'rxjs';
-import {NgxColDef, NgxRowNode, NgxValueGetterParams} from './models/ngx-col-def.model';
+import {NgxColDef} from './models/ngx-col-def.model';
 import {NgxGridOptions} from './models/ngx-grid-options.model';
-import {NgxRowSelection, NgxSortDirection} from './models/types';
-import {NgxOnRowClickedEvent, NgxOnSelectionChangedEvent, NgxOnSortChangedEvent} from './models/events';
+import {NgxPaginationMode, NgxRowSelection, NgxSortDirection} from './models/types';
+import {
+  NgxOnPageChangedEvent,
+  NgxOnRowClickedEvent,
+  NgxOnSelectionChangedEvent,
+  NgxOnSortChangedEvent
+} from './models/events';
 import {NgxCellTemplateDirective} from './directives/ngx-cell-template.directive';
 import {NgxHeaderTemplateDirective} from './directives/ngx-header-template.directive';
 import {NgxSortModelItem} from './models/ngx-sort.model';
@@ -25,6 +30,7 @@ import {NgxGridValueService} from './services/ngx-grid-value/ngx-grid-value.serv
 import {NgxGridSortService} from './services/ngx-grid-sort/ngx-grid-sort.service';
 import {NgxGridSelectionService} from './services/ngx-grid-selection/ngx-grid-selection.service';
 import {NgxGridPaginationService} from './services/ngx-grid-pagination/ngx-grid-pagination.service';
+import {NgxServerFetcher} from './models/ngx-pagination.model';
 
 @Component({
   selector: 'ngx-grid',
@@ -51,11 +57,15 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
   public readonly defaultColDef = input<Partial<NgxColDef<T>> | null>(null);
   public readonly gridOptions = input<NgxGridOptions<T> | null>(null);
   public readonly rowSelection = input<NgxRowSelection>('none');
+  public readonly paginationMode = input<NgxPaginationMode>('client');
+  public readonly serverFetcher = input<NgxServerFetcher<T> | null>(null);
+  public readonly pageSizeOptions = input<number[]>([10, 25, 50]);
 
   // Outputs
   public readonly rowClicked = output<NgxOnRowClickedEvent<T>>();
   public readonly selectionChanged = output<NgxOnSelectionChangedEvent<T>>();
   public readonly sortChanged = output<NgxOnSortChangedEvent<T>>();
+  public readonly pageChanged = output<NgxOnPageChangedEvent<T>>();
   public readonly apiReady = output<NgxGridApi<T>>();
 
   // Templates
@@ -85,6 +95,7 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
   public readonly sortChanged$: Observable<NgxSortModelItem[]> =
     toObservable(this._sortService.sortModel);
 
+  private _streamSub: Subscription | null = null;
   private _api!: NgxGridApi<T>;
 
   private _emitSelectionChanges = () => effect(() => {
@@ -99,6 +110,17 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
     this.gridOptions()?.onSortChanged?.({ sortModel });
   });
 
+  private _emitPageChanges = () => effect(() => {
+    const pageOptions: NgxOnPageChangedEvent = {
+      pageIndex: this._paginationService.pageIndex(),
+      pageSize: this._paginationService.pageSize(),
+      total: this._paginationService.total(),
+      pageCount: this._paginationService.totalPages(),
+    }
+    this.pageChanged.emit(pageOptions);
+    this.gridOptions()?.onPageChanged?.(pageOptions);
+  })
+
   constructor() {
     this._dataService.bind(this.rowData, this.rowData$);
     this._columnService.bind(this.columnDefs, this.defaultColDef, this.gridOptions);
@@ -106,8 +128,12 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
     this._selectionService.bind(this.gridOptions, this.rowSelection, this.data);
     this._paginationService.bind(this.data, this.gridOptions()?.paginationPageSize ?? 50);
 
+    effect(() => this._paginationService.setMode(this.paginationMode()));
+    effect(() => this._paginationService.setServerFetcher(this.serverFetcher()));
+
     this._emitSelectionChanges();
     this._emitSortChanges();
+    this._emitPageChanges();
   }
 
   ngAfterContentInit(): void {
@@ -115,7 +141,12 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
     this.cellTemplates.changes.subscribe(() => this._rebuildTemplateMaps());
     this.headerTemplates.changes.subscribe(() => this._rebuildTemplateMaps());
 
-    this._api = new NgxGridApi<T>(this._sortService, this._selectionService, this._paginationService);
+    this._api = new NgxGridApi<T>(
+      this._sortService,
+      this._selectionService,
+      this._paginationService,
+      this._dataService,
+    );
     this.apiReady.emit(this._api);
   }
 
@@ -172,6 +203,16 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
   public getCellClassList =
     (row: T, col: NgxColDef<T>, rowIndex: number): string[] =>
       this._valueService.getCellClassList(row, col, rowIndex);
+
+  public paginationTotal = (): number => this._paginationService.total();
+  public paginationPageIndex = (): number => this._paginationService.pageIndex();
+  public paginationTotalPages = (): number => this._paginationService.totalPages();
+  public paginationPageSize = (): number => this._paginationService.pageSize();
+  public onPaginationSetPageSize = (size: number): void => this._paginationService.setPageSize(size);
+  public onPaginationFirst = (): void => this._paginationService.first();
+  public onPaginationPrev = (): void => this._paginationService.prev();
+  public onPaginationNext = (): void => this._paginationService.next();
+  public onPaginationLast = (): void => this._paginationService.last();
 
   public trackRow: TrackByFunction<T> = (i, item) => i;
 

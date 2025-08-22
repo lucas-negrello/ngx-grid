@@ -16,9 +16,13 @@ export interface NgxPageResult<T = any> {
 
 export type NgxServerFetcher<T = any> = (request: NgxPageRequest) => Observable<NgxPageResult<T>>;
 
-export interface NgxPageChange {
+export interface NgxPageState {
   pageIndex: number;
   pageSize: number;
   total: number;
-  pageCount: number;
+  pageCount: number
+}
+
+export interface NgxPageRefreshOptions {
+  keepPage?: boolean;
 }

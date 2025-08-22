@@ -22,12 +22,12 @@
 
             @if (col.sortable !== false) {
               <span class="nxg-sort">
-                  <span class="nxg-sort__dir" [class.active]="getSortFor(col) === 'asc'">▲</span>
-                  <span class="nxg-sort__dir" [class.active]="getSortFor(col) === 'desc'">▼</span>
+                <span class="nxg-sort__dir" [class.active]="getSortFor(col) === 'asc'">▲</span>
+                <span class="nxg-sort__dir" [class.active]="getSortFor(col) === 'desc'">▼</span>
                 @if (getSortIndexFor(col) !== null) {
                   <span class="nxg-sort__index">{{ getSortIndexFor(col)! + 1 }}</span>
                 }
-                </span>
+              </span>
             }
           </th>
         }
@@ -43,13 +43,13 @@
                   <ng-container
                     [ngTemplateOutlet]="cTpl.template"
                     [ngTemplateOutletContext]="{
-                      $implicit: getCellFormattedValue(row, col, i),
-                      value: getCellFormattedValue(row, col, i),
-                      data: row,
-                      row: row,
-                      colDef: col,
-                      colId: col.colId
-                    }"
+                    $implicit: getCellFormattedValue(row, col, i),
+                    value: getCellFormattedValue(row, col, i),
+                    data: row,
+                    row: row,
+                    colDef: col,
+                    colId: col.colId
+                  }"
                   ></ng-container>
                 } @else {
                   @if (col.cellRenderer) {
@@ -72,5 +72,27 @@
         }
       </tbody>
     </table>
+  </div>
+
+  <!-- Paginator (usa apenas a fachada pública do componente) -->
+  <div class="nxg-paginator">
+    <div class="nxg-paginator__info">
+      <span>Total: {{ paginationTotal() }}</span>
+      <span> • Página: {{ paginationPageIndex() + 1 }} / {{ paginationTotalPages() }}</span>
+    </div>
+    <div class="nxg-paginator__actions">
+      <label>
+        Linhas por página:
+        <select [value]="paginationPageSize()" (change)="onPaginationSetPageSize($any($event.target).value)">
+          @for (size of (gridOptions()?.paginationPageSizeOptions ?? [10,25,50]); track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </label>
+      <button type="button" (click)="onPaginationFirst()" [disabled]="paginationPageIndex() === 0">Primeira</button>
+      <button type="button" (click)="onPaginationPrev()" [disabled]="paginationPageIndex() === 0">Anterior</button>
+      <button type="button" (click)="onPaginationNext()" [disabled]="paginationPageIndex() >= (paginationTotalPages() - 1)">Próxima</button>
+      <button type="button" (click)="onPaginationLast()" [disabled]="paginationPageIndex() >= (paginationTotalPages() - 1)">Última</button>
+    </div>
   </div>
 </div>

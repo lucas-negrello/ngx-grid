@@ -1,6 +1,6 @@
 import {NgxColDef} from './ngx-col-def.model';
 import {NgxRowSelection} from './types';
-import {NgxOnRowClickedEvent, NgxOnSelectionChangedEvent, NgxOnSortChangedEvent} from './events';
+import {NgxOnPageChangedEvent, NgxOnRowClickedEvent, NgxOnSelectionChangedEvent, NgxOnSortChangedEvent} from './events';
 
 export interface NgxGridOptions<T = any> {
   defaultColDef?: Partial<NgxColDef<T>>;
@@ -12,6 +12,8 @@ export interface NgxGridOptions<T = any> {
   onRowClicked?: (event: NgxOnRowClickedEvent<T>) => void;
   onSelectionChanged?: (event: NgxOnSelectionChangedEvent<T>) => void;
   onSortChanged?: (event: NgxOnSortChangedEvent<T> ) => void;
+  onPageChanged?: (event: NgxOnPageChangedEvent<T>) => void;
 
   paginationPageSize?: number;
+  paginationPageSizeOptions?: number[];
 }
