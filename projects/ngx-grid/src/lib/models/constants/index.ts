@@ -15,3 +15,8 @@ export const NgxAlignmentConst = {
   center: 'center',
   right: 'right',
 } as const;
+
+export const NgxPaginationModeConst = {
+  client: 'client',
+  server: 'server',
+} as const;

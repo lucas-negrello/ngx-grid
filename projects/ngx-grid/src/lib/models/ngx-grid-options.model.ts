@@ -12,4 +12,6 @@ export interface NgxGridOptions<T = any> {
   onRowClicked?: (event: NgxOnRowClickedEvent<T>) => void;
   onSelectionChanged?: (event: NgxOnSelectionChangedEvent<T>) => void;
   onSortChanged?: (event: NgxOnSortChangedEvent<T> ) => void;
+
+  paginationPageSize?: number;
 }
