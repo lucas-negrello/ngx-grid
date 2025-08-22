@@ -1,8 +1,29 @@
+<h1>{{ title }}</h1>
+
+<h2>Client-side (rowData em memória)</h2>
 <ngx-grid
-  rowSelection="multiple"
-  (rowClicked)="event($event)"
-  (selectionChanged)="event($event)"
-  (sortChanged)="event($event)"
-  [columnDefs]="[{field: 'id', headerName: 'ID'}, {field: 'name', headerName: 'Nome'}]"
-  [rowData]="[{id: 1, name: 'Linha 1'}, {id: 2, name: 'Linha 2'}]"/>
-<router-outlet />
+  [columnDefs]="cols"
+  [rowData]="rows"
+  [gridOptions]="options"
+  (apiReady)="onApi($event)"
+  (rowClicked)="onRowClicked($event)"
+  (sortChanged)="onSortChanged($event)"
+  (selectionChanged)="onSelectionChanged($event)"
+  (pageChanged)="onPageChange($event)"
+></ngx-grid>
+
+<hr />
+
+<h2>Server-side (fetcher simulado)</h2>
+<ngx-grid
+  [columnDefs]="cols"
+  [rowData]="[]"
+  [gridOptions]="options"
+  [paginationMode]="'server'"
+  [serverFetcher]="serverFetcher"
+  (apiReady)="onApi($event)"
+  (rowClicked)="onRowClicked($event)"
+  (sortChanged)="onSortChanged($event)"
+  (selectionChanged)="onSelectionChanged($event)"
+  (pageChanged)="onPageChange($event)"
+></ngx-grid>
