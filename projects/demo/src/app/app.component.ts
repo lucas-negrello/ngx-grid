@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import {NgxGridComponent} from '../../../ngx-grid/src/lib/ngx-grid.component';
 import {NgxGridApi} from '../../../ngx-grid/src/lib/api/ngx-grid-api';
 import {DEMO_USERS, demoServerFetcher, DemoUser} from './app.component.data';
@@ -8,7 +7,7 @@ import {NgxGridOptions} from '../../../ngx-grid/src/lib/models/ngx-grid-options.
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgxGridComponent],
+  imports: [NgxGridComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -16,10 +15,8 @@ export class AppComponent {
   title = 'Ngx Grid Demo';
   api!: NgxGridApi<DemoUser>;
 
-  // Dados para client-side (em memória)
   rows: DemoUser[] = DEMO_USERS;
 
-  // Fetcher para server-side (simulado)
   serverFetcher = demoServerFetcher;
 
   // Definições de colunas
@@ -69,9 +66,7 @@ export class AppComponent {
 
   // Opções do grid
   options: NgxGridOptions<DemoUser> = {
-    paginationPageSize: 25,
-    paginationPageSizeOptions: [10, 25, 50, 100],
-    suppressMultiSort: false,
+    paginationPageSize: 10,
     getRowId: ({ data }) => data.id,
     onRowClicked: (e) => console.log('Row clicked (options):', e),
     onSelectionChanged: (e) => console.log('Selection changed (options):', e.selected.length),
@@ -82,7 +77,6 @@ export class AppComponent {
   onApi(api: NgxGridApi<DemoUser>) {
     this.api = api;
     console.log('API pronta. Página atual:', api.getPageIndex(), 'Tamanho:', api.getPageSize());
-    // Exemplo: assinar mudanças de página
     this.api.pageChange$?.subscribe((p) => console.log('pageChange$', p));
   }
 

@@ -104,7 +104,7 @@ export function generateUsers(count: number, seed = 'ngx-grid-demo'): DemoUser[]
       age,
       salary,
       joinDate: randomDateInPastYears(rnd, 6),
-      active: rnd() > 0.2, // 80% ativos
+      active: rnd() > 0.2,
       department: dept,
       country,
       score: randomFloat(rnd, 0, 100, 1),

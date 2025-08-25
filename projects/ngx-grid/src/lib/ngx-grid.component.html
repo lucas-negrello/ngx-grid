@@ -19,7 +19,6 @@
             } @else {
               <span class="nxg-th__label">{{ col.headerName || col.field || col.colId }}</span>
             }
-
             @if (col.sortable !== false) {
               <span class="nxg-sort">
                 <span class="nxg-sort__dir" [class.active]="getSortFor(col) === 'asc'">▲</span>
@@ -35,7 +34,7 @@
       </thead>
 
       <tbody>
-        @for (row of processedRows(); track trackRow; let i = $index) {
+        @for (row of processedRows(); track trackRow(i, row); let i = $index) {
           <tr class="nxg-tr" (click)="onRowClick(row, i, $event)" [class.nxg-tr--selected]="isSelected(row, i)">
             @for (col of effectiveColDefs(); track col.colId) {
               <td class="nxg-td" [ngClass]="getCellClassList(row, col, i)" [style.text-align]="col.align || 'left'">
@@ -74,7 +73,6 @@
     </table>
   </div>
 
-  <!-- Paginator (usa apenas a fachada pública do componente) -->
   <div class="nxg-paginator">
     <div class="nxg-paginator__info">
       <span>Total: {{ paginationTotal() }}</span>
@@ -83,7 +81,7 @@
     <div class="nxg-paginator__actions">
       <label>
         Linhas por página:
-        <select [value]="paginationPageSize()" (change)="onPaginationSetPageSize($any($event.target).value)">
+        <select [value]="paginationPageSize()" (change)="onPaginationSetPageSize(Number($any($event.target).value))">
           @for (size of (gridOptions()?.paginationPageSizeOptions ?? [10,25,50]); track size) {
             <option [value]="size">{{ size }}</option>
           }

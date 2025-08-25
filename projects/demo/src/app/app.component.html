@@ -1,26 +1,9 @@
 <h1>{{ title }}</h1>
 
-<h2>Client-side (rowData em memória)</h2>
 <ngx-grid
   [columnDefs]="cols"
   [rowData]="rows"
   [gridOptions]="options"
-  (apiReady)="onApi($event)"
-  (rowClicked)="onRowClicked($event)"
-  (sortChanged)="onSortChanged($event)"
-  (selectionChanged)="onSelectionChanged($event)"
-  (pageChanged)="onPageChange($event)"
-></ngx-grid>
-
-<hr />
-
-<h2>Server-side (fetcher simulado)</h2>
-<ngx-grid
-  [columnDefs]="cols"
-  [rowData]="[]"
-  [gridOptions]="options"
-  [paginationMode]="'server'"
-  [serverFetcher]="serverFetcher"
   (apiReady)="onApi($event)"
   (rowClicked)="onRowClicked($event)"
   (sortChanged)="onSortChanged($event)"

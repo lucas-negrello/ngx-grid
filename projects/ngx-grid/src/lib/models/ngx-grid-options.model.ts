@@ -7,7 +7,7 @@ export interface NgxGridOptions<T = any> {
   rowSelection?: NgxRowSelection;
   suppressMultiSort?: boolean;
 
-  getRowId?: (params: { data: T; index: number}) => any;
+  getRowId?: (params: { data: T; index: number}) => string | number;
 
   onRowClicked?: (event: NgxOnRowClickedEvent<T>) => void;
   onSelectionChanged?: (event: NgxOnSelectionChangedEvent<T>) => void;

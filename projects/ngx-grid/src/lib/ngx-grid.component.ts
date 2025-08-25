@@ -126,8 +126,12 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
     this._columnService.bind(this.columnDefs, this.defaultColDef, this.gridOptions);
     this._sortService.bind(this.gridOptions);
     this._selectionService.bind(this.gridOptions, this.rowSelection, this.data);
-    this._paginationService.bind(this.data, this.gridOptions()?.paginationPageSize ?? 50);
+    this._paginationService.bind(this.data, this.gridOptions()?.paginationPageSize ?? 25);
 
+    effect(() => {
+      const size = this.gridOptions()?.paginationPageSize ?? 25;
+      this._paginationService.setPageSize(size);
+    });
     effect(() => this._paginationService.setMode(this.paginationMode()));
     effect(() => this._paginationService.setServerFetcher(this.serverFetcher()));
 
@@ -213,8 +217,20 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
   public onPaginationPrev = (): void => this._paginationService.prev();
   public onPaginationNext = (): void => this._paginationService.next();
   public onPaginationLast = (): void => this._paginationService.last();
+  public trackRow: TrackByFunction<T> = (i, item) => {
+    const getRowId = this.gridOptions()?.getRowId;
+    if (getRowId) {
+      try {
+        const key = getRowId({data: item as T, index: i});
+        if (key !== undefined && key !== null) return key;
+      } catch {
 
-  public trackRow: TrackByFunction<T> = (i, item) => i;
+      }
+    }
+    const id = (item as any)?.id;
+    return id ?? i;
+  };
 
   protected readonly String = String;
+  protected readonly Number = Number;
 }

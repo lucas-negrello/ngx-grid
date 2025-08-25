@@ -21,7 +21,7 @@ export class NgxGridPaginationService<T = any> {
   // Pagination State
   private readonly _mode = signal<NgxPaginationMode>('client');
   private readonly _pageIndex = signal(0);
-  private readonly _pageSize = signal<number>(50);
+  private readonly _pageSize = signal<number>(25);
 
   // Server Side
   private readonly _serverFetcher = signal<NgxServerFetcher<T> | null>(null);
@@ -101,10 +101,11 @@ export class NgxGridPaginationService<T = any> {
   }
 
   public bind =
-    (data: Signal<T[]>, defaultPageSize = 50): void => {
+    (data: Signal<T[]>, defaultPageSize = 25): void => {
+      const safeDefault = Math.max(1, Math.floor(defaultPageSize));
+      this._pageSize.set(safeDefault);
       effect(() => {
         this._data.set(data() ?? []);
-        if (defaultPageSize > 0) this._pageSize.set(defaultPageSize);
 
         const max = Math.max(0, this.totalPages() - 1);
         if (this._pageIndex() > max) this._pageIndex.set(max);
