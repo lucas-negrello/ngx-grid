@@ -90,12 +90,6 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
     return this._paginationService.apply(sorted);
   });
 
-  public readonly selectionChanged$: Observable<NgxOnSelectionChangedEvent> =
-    toObservable(computed(() => ({ selected: this._selectionService.getSelectedRows() })));
-  public readonly sortChanged$: Observable<NgxSortModelItem[]> =
-    toObservable(this._sortService.sortModel);
-
-  private _streamSub: Subscription | null = null;
   private _api!: NgxGridApi<T>;
 
   private _emitSelectionChanges = () => effect(() => {

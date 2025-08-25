@@ -6,10 +6,17 @@ import {NgxGridDataService} from '../services/ngx-grid-data/ngx-grid-data.servic
 import {NgxPaginationMode} from '../models/types';
 import {NgxPageRefreshOptions, NgxPageState, NgxServerFetcher} from '../models/ngx-pagination.model';
 import {Observable} from 'rxjs';
-import {NgxOnPageChangedEvent} from '../models/events';
+import {
+  NgxOnPageChangedEvent,
+  NgxOnSelectionChangedEvent,
+  NgxOnSortChangedEvent
+} from '../models/events';
+import {NgxApiModel} from '../models/ngx-api.model';
 
-export class NgxGridApi<T = any> {
-  public readonly pageChange$: Observable<NgxOnPageChangedEvent>
+export class NgxGridApi<T = any> implements NgxApiModel<T> {
+  public readonly pageChange$: Observable<NgxOnPageChangedEvent<T>>;
+  public readonly sortChanged$: Observable<NgxOnSortChangedEvent<T>>;
+  public readonly selectionChanged$: Observable<NgxOnSelectionChangedEvent<T>>;
   constructor(
     private readonly _sort: NgxGridSortService<T>,
     private readonly _selection: NgxGridSelectionService<T>,
@@ -17,6 +24,8 @@ export class NgxGridApi<T = any> {
     private readonly _data: NgxGridDataService<T>,
   ) {
     this.pageChange$ = this._pagination.pageChange$;
+    this.sortChanged$ = this._sort.sortChanged$;
+    this.selectionChanged$ = this._selection.selectionChanged$;
   }
 
   // Sort API Functions

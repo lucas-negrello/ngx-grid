@@ -5,6 +5,9 @@ import {NgxGridColumnService} from '../ngx-grid-column/ngx-grid-column.service';
 import {NgxGridValueService} from '../ngx-grid-value/ngx-grid-value.service';
 import {NgxSortDirection} from '../../models/types';
 import {NgxColDef, NgxRowNode} from '../../models/ngx-col-def.model';
+import {toObservable} from '@angular/core/rxjs-interop';
+import {Observable} from 'rxjs';
+import {NgxOnSortChangedEvent} from '../../models/events';
 
 @Injectable({
   providedIn: null
@@ -14,6 +17,9 @@ export class NgxGridSortService<T = any> {
   private _sortModel = signal<NgxSortModelItem[]>([]);
 
   public readonly sortModel = computed(() => this._sortModel());
+  public readonly sortChanged$: Observable<NgxOnSortChangedEvent<T>> = toObservable(computed(() => ({
+    sortModel: this.sortModel(),
+  })));
 
   constructor(
     private readonly columns: NgxGridColumnService<T>,
