@@ -8,20 +8,19 @@ import {
   QueryList,
   signal, TrackByFunction
 } from '@angular/core';
-import {Observable, Subscription} from 'rxjs';
+import {Observable} from 'rxjs';
 import {NgxColDef} from './models/ngx-col-def.model';
 import {NgxGridOptions} from './models/ngx-grid-options.model';
 import {NgxPaginationMode, NgxRowSelection, NgxSortDirection} from './models/types';
 import {
-  NgxOnPageChangedEvent,
-  NgxOnRowClickedEvent,
-  NgxOnSelectionChangedEvent,
-  NgxOnSortChangedEvent
+  NgxBaseEvent,
+  NgxOnPageChangesEvent,
+  NgxOnRowClickChangesEvent,
+  NgxOnSelectionChangesEvent,
+  NgxOnSortChangesEvent
 } from './models/events';
 import {NgxCellTemplateDirective} from './directives/ngx-cell-template.directive';
 import {NgxHeaderTemplateDirective} from './directives/ngx-header-template.directive';
-import {NgxSortModelItem} from './models/ngx-sort.model';
-import {toObservable} from '@angular/core/rxjs-interop';
 import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {NgxGridApi} from './api/ngx-grid-api';
 import {NgxGridDataService} from './services/ngx-grid-data/ngx-grid-data.service';
@@ -62,10 +61,10 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
   public readonly pageSizeOptions = input<number[]>([10, 25, 50]);
 
   // Outputs
-  public readonly rowClicked = output<NgxOnRowClickedEvent<T>>();
-  public readonly selectionChanged = output<NgxOnSelectionChangedEvent<T>>();
-  public readonly sortChanged = output<NgxOnSortChangedEvent<T>>();
-  public readonly pageChanged = output<NgxOnPageChangedEvent<T>>();
+  public readonly rowClicked = output<NgxBaseEvent<T, NgxOnRowClickChangesEvent<T>>>();
+  public readonly selectionChanged = output<NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>>>();
+  public readonly sortChanged = output<NgxBaseEvent<T, NgxOnSortChangesEvent<T>>>();
+  public readonly pageChanged = output<NgxBaseEvent<T, NgxOnPageChangesEvent<T>>>();
   public readonly apiReady = output<NgxGridApi<T>>();
 
   // Templates
@@ -93,26 +92,38 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
   private _api!: NgxGridApi<T>;
 
   private _emitSelectionChanges = () => effect(() => {
-    const selected = this._selectionService.getSelectedRows();
-    this.selectionChanged.emit({ selected });
-    this.gridOptions()?.onSelectionChanged?.({ selected });
+    const selectedOptions: NgxOnSelectionChangesEvent<T> = { selected: this._selectionService.getSelectedRows()};
+    const emitValues: NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>> = {
+      api: this._api,
+      event: selectedOptions
+    };
+    this.selectionChanged.emit(emitValues);
+    this.gridOptions()?.onSelectionChanges?.(emitValues);
   });
 
   private _emitSortChanges = () => effect(() => {
-    const sortModel = this._sortService.sortModel();
-    this.sortChanged.emit({ sortModel });
-    this.gridOptions()?.onSortChanged?.({ sortModel });
+    const sortModelOptions: NgxOnSortChangesEvent<T> = { sortModel: this._sortService.sortModel() };
+    const emitValues: NgxBaseEvent<T, NgxOnSortChangesEvent<T>> = {
+      api: this._api,
+      event: sortModelOptions
+    };
+    this.sortChanged.emit(emitValues);
+    this.gridOptions()?.onSortChanges?.(emitValues);
   });
 
   private _emitPageChanges = () => effect(() => {
-    const pageOptions: NgxOnPageChangedEvent = {
+    const pageOptions: NgxOnPageChangesEvent = {
       pageIndex: this._paginationService.pageIndex(),
       pageSize: this._paginationService.pageSize(),
       total: this._paginationService.total(),
       pageCount: this._paginationService.totalPages(),
     }
-    this.pageChanged.emit(pageOptions);
-    this.gridOptions()?.onPageChanged?.(pageOptions);
+    const emitValues: NgxBaseEvent<T, NgxOnPageChangesEvent<T>> = {
+      api: this._api,
+      event: pageOptions
+    };
+    this.pageChanged.emit(emitValues);
+    this.gridOptions()?.onPageChanges?.(emitValues);
   })
 
   constructor() {
@@ -177,8 +188,17 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
 
   public onRowClick =
     (row: T, rowIndex: number, event: MouseEvent): void => {
-      this.rowClicked.emit({ data: row, rowIndex });
-      this.gridOptions()?.onRowClicked?.({ data: row, rowIndex });
+      const clickOptions: NgxOnRowClickChangesEvent<T> = {
+        data: row,
+        rowIndex,
+      };
+      const emitValues: NgxBaseEvent<T, NgxOnRowClickChangesEvent<T>> = {
+        api: this._api,
+        event: clickOptions,
+        originalEvent: event,
+      }
+      this.rowClicked.emit(emitValues);
+      this.gridOptions()?.onRowClickChanges?.(emitValues);
       this._selectionService.onRowClick(row, rowIndex);
     }
 

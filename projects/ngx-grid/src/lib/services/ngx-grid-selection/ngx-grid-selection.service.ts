@@ -3,7 +3,8 @@ import {NgxGridOptions} from '../../models/ngx-grid-options.model';
 import {NgxRowSelection} from '../../models/types';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {Observable} from 'rxjs';
-import {NgxOnSelectionChangedEvent} from '../../models/events';
+import {NgxBaseEvent, NgxOnSelectionChangesEvent} from '../../models/events';
+import {NgxGridApi} from '../../api/ngx-grid-api';
 
 @Injectable({
   providedIn: null
@@ -15,9 +16,15 @@ export class NgxGridSelectionService<T = any> {
   private _data = signal<T[]>([]);
 
   public readonly selectionChanged = computed<T[]>(() => this.getSelectedRows());
-  public readonly selectionChanged$: Observable<NgxOnSelectionChangedEvent<T>> = toObservable(computed(() => ({
-    selected: this.selectionChanged(),
-  })));
+
+  public setSelectionChanges$ =
+    (api: NgxGridApi<T>): Observable<NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>>> =>
+      toObservable(computed(() => ({
+        api,
+        event: {
+          selected: this.selectionChanged(),
+        }
+      })));
 
   public bind(
     gridOptions: Signal<NgxGridOptions<T> | null>,

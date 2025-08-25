@@ -4,6 +4,12 @@ import {NgxGridApi} from '../../../ngx-grid/src/lib/api/ngx-grid-api';
 import {DEMO_USERS, demoServerFetcher, DemoUser} from './app.component.data';
 import {NgxColDef} from '../../../ngx-grid/src/lib/models/ngx-col-def.model';
 import {NgxGridOptions} from '../../../ngx-grid/src/lib/models/ngx-grid-options.model';
+import {
+  NgxBaseEvent, NgxOnPageChangesEvent,
+  NgxOnRowClickChangesEvent,
+  NgxOnSelectionChangesEvent,
+  NgxOnSortChangesEvent
+} from '../../../ngx-grid/src/lib/models/events';
 
 @Component({
   selector: 'app-root',
@@ -68,31 +74,31 @@ export class AppComponent {
   options: NgxGridOptions<DemoUser> = {
     paginationPageSize: 10,
     getRowId: ({ data }) => data.id,
-    onRowClicked: (e) => console.log('Row clicked (options):', e),
-    onSelectionChanged: (e) => console.log('Selection changed (options):', e.selected.length),
-    onSortChanged: (e) => console.log('Sort changed (options):', e.sortModel),
+    onRowClickChanges: (e) => console.log('Row clicked (options):', e),
+    onSelectionChanges: (e) => console.log('Selection changed (options):', e.event.selected.length),
+    onSortChanges: (e) => console.log('Sort changed (options):', e.event.sortModel),
   };
 
   // Eventos (component outputs)
   onApi(api: NgxGridApi<DemoUser>) {
     this.api = api;
     console.log('API pronta. Página atual:', api.getPageIndex(), 'Tamanho:', api.getPageSize());
-    this.api.pageChange$?.subscribe((p) => console.log('pageChange$', p));
+    this.api.pageChanges$?.subscribe((p) => console.log('pageChange$', p));
   }
 
-  onRowClicked(e: any) {
-    console.log('Row clicked (output):', e);
+  onRowClicked(e: NgxBaseEvent<DemoUser, NgxOnRowClickChangesEvent<DemoUser>>) {
+    console.log('Row clicked (output):', e.event);
   }
 
-  onSortChanged(e: any) {
-    console.log('Sort changed (output):', e.sortModel);
+  onSortChanged(e: NgxBaseEvent<DemoUser, NgxOnSortChangesEvent<DemoUser>>) {
+    console.log('Sort changed (output):', e.event.sortModel);
   }
 
-  onSelectionChanged(e: any) {
-    console.log('Selection changed (output):', e.selected.length);
+  onSelectionChanged(e: NgxBaseEvent<DemoUser, NgxOnSelectionChangesEvent<DemoUser>>) {
+    console.log('Selection changed (output):', e.event.selected.length);
   }
 
-  onPageChange(e: any) {
-    console.log('Page changed (output):', e);
+  onPageChange(e: NgxBaseEvent<DemoUser, NgxOnPageChangesEvent<DemoUser>>) {
+    console.log('Page changed (output):', e.event);
   }
 }

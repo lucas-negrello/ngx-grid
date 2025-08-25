@@ -2,7 +2,10 @@ import {NgxSortModelItem} from './ngx-sort.model';
 import {NgxPaginationMode} from './types';
 import {NgxPageRefreshOptions, NgxPageState, NgxServerFetcher} from './ngx-pagination.model';
 import {Observable} from 'rxjs';
-import {NgxOnPageChangedEvent, NgxOnRowClickedEvent, NgxOnSelectionChangedEvent, NgxOnSortChangedEvent} from './events';
+import {
+  NgxBaseEvent, NgxOnPageChangesEvent,
+  NgxOnSelectionChangesEvent, NgxOnSortChangesEvent
+} from './events';
 
 export interface NgxApiModel<T = any> {
   // Sort
@@ -36,7 +39,7 @@ export interface NgxApiModel<T = any> {
   getVisibleRows: () => T[];
 
   // Events
-  readonly pageChange$: Observable<NgxOnPageChangedEvent<T>>;
-  readonly selectionChanged$: Observable<NgxOnSelectionChangedEvent<T>>;
-  readonly sortChanged$: Observable<NgxOnSortChangedEvent<T>>;
+  readonly pageChanges$: Observable<NgxBaseEvent<T, NgxOnPageChangesEvent<T>>>;
+  readonly selectionChanges$: Observable<NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>>>;
+  readonly sortChanges$: Observable<NgxBaseEvent<T, NgxOnSortChangesEvent<T>>>;
 }

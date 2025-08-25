@@ -6,10 +6,11 @@ import {
   NgxPageResult,
   NgxServerFetcher
 } from '../../models/ngx-pagination.model';
-import {catchError, of, Subscription} from 'rxjs';
+import {catchError, Observable, of, Subscription} from 'rxjs';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {NgxGridSortService} from '../ngx-grid-sort/ngx-grid-sort.service';
-import {NgxOnPageChangedEvent} from '../../models/events';
+import {NgxBaseEvent, NgxOnPageChangesEvent} from '../../models/events';
+import {NgxGridApi} from '../../api/ngx-grid-api';
 
 @Injectable({
   providedIn: null
@@ -47,14 +48,17 @@ export class NgxGridPaginationService<T = any> {
   public readonly loading = computed(() => this._loading());
   public readonly error = computed(() => this._error());
 
-  public readonly pageChange$ = toObservable(
-    computed<NgxOnPageChangedEvent<T>>(() => ({
-      pageIndex: this.pageIndex(),
-      pageSize: this.pageSize(),
-      total: this.total(),
-      pageCount: this.totalPages()
-    }))
-  );
+  public setPageChanges$ =
+    (api: NgxGridApi<T>): Observable<NgxBaseEvent<T, NgxOnPageChangesEvent<T>>> =>
+      toObservable(computed(() => ({
+        api,
+        event: {
+          pageIndex: this.pageIndex(),
+          pageSize: this.pageSize(),
+          total: this.total(),
+          pageCount: this.totalPages()
+        }
+      })));
 
   private _serverSideEffect = () => effect((onCleanup) => {
     if (this._mode() !== 'server') return;
