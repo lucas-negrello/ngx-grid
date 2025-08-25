@@ -48,6 +48,15 @@ export class NgxGridPaginationService<T = any> {
   public readonly loading = computed(() => this._loading());
   public readonly error = computed(() => this._error());
 
+  public readonly pageChanges$ = toObservable(
+    computed<NgxOnPageChangesEvent<T>>(() => ({
+      pageIndex: this.pageIndex(),
+      pageSize: this.pageSize(),
+      total: this.total(),
+      pageCount: this.totalPages()
+    }))
+  );
+
   public setPageChanges$ =
     (api: NgxGridApi<T>): Observable<NgxBaseEvent<T, NgxOnPageChangesEvent<T>>> =>
       toObservable(computed(() => ({

@@ -73,6 +73,14 @@ export class AppComponent {
   // Opções do grid
   options: NgxGridOptions<DemoUser> = {
     paginationPageSize: 10,
+
+    density: 'compact',
+    striped: true,
+    hoverHighlight: true,
+    stickyHeader: true,
+    tableClass: 'custom-table',
+    rowClass: ({ data }) => (data.active ? 'row-active' : 'row-inactive'),
+
     getRowId: ({ data }) => data.id,
     onRowClickChanges: (e) => console.log('Row clicked (options):', e),
     onSelectionChanges: (e) => console.log('Selection changed (options):', e.event.selected.length),

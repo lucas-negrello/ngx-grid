@@ -19,6 +19,9 @@ export class NgxGridSortService<T = any> {
 
   public readonly sortModel = computed(() => this._sortModel());
 
+  public readonly sortChanges$: Observable<NgxOnSortChangesEvent<T>> =
+    toObservable(computed(() => ({ sortModel: this.sortModel() })));
+
   public setSortChanges$ =
     (api: NgxGridApi<T>): Observable<NgxBaseEvent<T, NgxOnSortChangesEvent<T>>> =>
       toObservable(computed(() => ({

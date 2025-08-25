@@ -17,6 +17,9 @@ export class NgxGridSelectionService<T = any> {
 
   public readonly selectionChanged = computed<T[]>(() => this.getSelectedRows());
 
+  public readonly selectionChanges$: Observable<NgxOnSelectionChangesEvent<T>> =
+    toObservable(computed(() => ({ selected: this.selectionChanged() })));
+
   public setSelectionChanges$ =
     (api: NgxGridApi<T>): Observable<NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>>> =>
       toObservable(computed(() => ({
