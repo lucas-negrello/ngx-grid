@@ -1,5 +1,5 @@
 import {NgxColDef} from './ngx-col-def.model';
-import {NgxRowSelection} from './types';
+import {NgxDensity, NgxRowSelection} from './types';
 import {
   NgxBaseEvent,
   NgxOnPageChangesEvent, NgxOnRowClickChangesEvent, NgxOnSelectionChangesEvent, NgxOnSortChangesEvent
@@ -19,4 +19,12 @@ export interface NgxGridOptions<T = any> {
 
   paginationPageSize?: number;
   paginationPageSizeOptions?: number[];
+
+  // Layout/UX
+  density?: NgxDensity;
+  striped?: boolean;
+  hoverHighlight?: boolean;
+  stickyHeader?: boolean;
+  tableClass?: string;
+  rowClass?: (params: { data: T; index: number }) => string | string[] | undefined | null;
 }

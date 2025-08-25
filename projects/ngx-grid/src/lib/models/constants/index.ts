@@ -20,3 +20,9 @@ export const NgxPaginationModeConst = {
   client: 'client',
   server: 'server',
 } as const;
+
+export const NgxDensityConst = {
+  compact: 'compact',
+  comfortable: 'comfortable',
+  spacious: 'spacious',
+} as const;
