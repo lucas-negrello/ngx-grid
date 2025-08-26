@@ -15,6 +15,8 @@ import {
 } from './models/events';
 import {NgxColDef} from './models/ngx-col-def.model';
 import {NgxSortDirection} from './models/types';
+import {NgxGridFilterService} from './services/ngx-grid-filter/ngx-grid-filter.service';
+import {NgxColumnFilter} from './models/ngx-filter.model';
 
 @Injectable()
 export class NgxGridService<T = any> {
@@ -29,6 +31,7 @@ export class NgxGridService<T = any> {
   private readonly _sortService: NgxGridSortService<T> = inject(NgxGridSortService);
   private readonly _selectionService: NgxGridSelectionService<T> = inject(NgxGridSelectionService);
   private readonly _paginationService: NgxGridPaginationService<T> = inject(NgxGridPaginationService);
+  private readonly _filterService: NgxGridFilterService<T> = inject(NgxGridFilterService);
 
   // Derivated State
   public readonly data = this._dataService.data;
@@ -83,6 +86,20 @@ export class NgxGridService<T = any> {
         inputs.gridOptions()?.onPageChanges?.(emitValues);
       });
 
+  private _emitFilterChanges =
+    (inputs: NgxGridInputs<T>, outputs: NgxGridOutputs<T>) =>
+      effect(() => {
+        const emitValues = {
+          api: this._api,
+          event: {
+            globalText: this._filterService.getGlobalText(),
+            columnFilters: this._filterService.getColumnFilters(),
+          }
+        };
+        outputs.filterChanged?.emit(emitValues);
+        inputs.gridOptions()?.onFilterChanges?.(emitValues);
+      });
+
   public bind = (inputs: NgxGridInputs<T>, outputs: NgxGridOutputs<T>): void => {
     this._inputs = inputs;
     this._outputs = outputs;
@@ -92,6 +109,7 @@ export class NgxGridService<T = any> {
     this._sortService.bind(inputs.gridOptions);
     this._selectionService.bind(inputs.gridOptions, inputs.rowSelection, this.data);
     this._paginationService.bind(this.data, inputs.gridOptions()?.paginationPageSize ?? 25);
+    this._filterService.bind(this.effectiveColDefs, inputs.gridOptions, this._valueService, inputs.filterText, inputs.columnFilters);
 
     effect(() => {
       const size = inputs.gridOptions()?.paginationPageSize ?? 25;
@@ -104,6 +122,7 @@ export class NgxGridService<T = any> {
     this._emitSelectionChanges(inputs, outputs);
     this._emitSortChanges(inputs, outputs);
     this._emitPageChanges(inputs, outputs);
+    this._emitFilterChanges(inputs, outputs);
 
   }
 
@@ -119,6 +138,7 @@ export class NgxGridService<T = any> {
       this._sortService,
       this._selectionService,
       this._paginationService,
+      this._filterService,
       this._dataService,
     );
     this._outputs.apiReady.emit(this._api);
@@ -166,7 +186,23 @@ export class NgxGridService<T = any> {
       this._outputs.rowClicked.emit(emitValues);
       this._inputs.gridOptions()?.onRowClickChanges?.(emitValues);
       this._selectionService.onRowClick(row, rowIndex);
-    }
+    };
+
+  public setGlobalFilter =
+    (text: string) =>
+      this._filterService.setGlobalText(text);
+
+  public setColumnFilter =
+    (filter: NgxColumnFilter<T>) =>
+      this._filterService.setColumnFilter(filter);
+
+  public clearColumnFilter =
+    (colId: string | number) =>
+      this._filterService.clearColumnFilter(colId);
+
+  public clearAllFilters =
+    () =>
+      this._filterService.clearAll();
 
   public isSelected =
     (row: T, rowIndex: number): boolean =>

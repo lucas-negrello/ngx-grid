@@ -1,5 +1,6 @@
 import {NgxSortModelItem} from '../ngx-sort.model';
 import {NgxGridApi} from '../../api/ngx-grid-api';
+import {NgxColumnFilter} from '../ngx-filter.model';
 
 export interface NgxBaseEvent<T = any, K = any> {
   api: NgxGridApi<T>;
@@ -25,4 +26,9 @@ export interface NgxOnPageChangesEvent<T = any> {
   pageSize: number;
   total: number;
   pageCount: number;
+}
+
+export interface NgxOnFilterChangesEvent<T = any> {
+  globalText?: string;
+  columnFilters?: NgxColumnFilter<T>[];
 }

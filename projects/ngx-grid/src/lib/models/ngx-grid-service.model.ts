@@ -5,10 +5,11 @@ import {NgxGridOptions} from './ngx-grid-options.model';
 import {NgxPaginationMode, NgxRowSelection} from './types';
 import {NgxServerFetcher} from './ngx-pagination.model';
 import {
-  NgxBaseEvent,
+  NgxBaseEvent, NgxOnFilterChangesEvent,
   NgxOnPageChangesEvent, NgxOnRowClickChangesEvent, NgxOnSelectionChangesEvent, NgxOnSortChangesEvent
 } from './events';
 import {NgxGridApi} from '../api/ngx-grid-api';
+import {NgxColumnFilter} from './ngx-filter.model';
 
 export interface NgxGridInputs<T = any> {
   rowData: Signal<T[]>;
@@ -20,6 +21,8 @@ export interface NgxGridInputs<T = any> {
   paginationMode: Signal<NgxPaginationMode>;
   serverFetcher: Signal<NgxServerFetcher<T> | null>;
   pageSizeOptions: Signal<number[]>;
+  filterText: Signal<string>;
+  columnFilters: Signal<NgxColumnFilter<T>[] | Record<string, any> | null>;
 }
 
 export interface NgxGridOutputs<T = any> {
@@ -27,5 +30,6 @@ export interface NgxGridOutputs<T = any> {
   selectionChanged: { emit: (e: NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>>) => void };
   sortChanged: { emit: (e: NgxBaseEvent<T, NgxOnSortChangesEvent<T>>) => void };
   pageChanged: { emit: (e: NgxBaseEvent<T, NgxOnPageChangesEvent<T>>) => void };
+  filterChanged: { emit: (e: NgxBaseEvent<T, NgxOnFilterChangesEvent<T>>) => void };
   apiReady: { emit: (api: NgxGridApi<T>) => void };
 }

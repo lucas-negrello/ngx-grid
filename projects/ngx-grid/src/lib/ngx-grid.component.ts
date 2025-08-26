@@ -13,7 +13,7 @@ import {NgxColDef} from './models/ngx-col-def.model';
 import {NgxGridOptions} from './models/ngx-grid-options.model';
 import {NgxPaginationMode, NgxRowSelection, NgxSortDirection} from './models/types';
 import {
-  NgxBaseEvent,
+  NgxBaseEvent, NgxOnFilterChangesEvent,
   NgxOnPageChangesEvent,
   NgxOnRowClickChangesEvent,
   NgxOnSelectionChangesEvent,
@@ -31,6 +31,8 @@ import {NgxGridSelectionService} from './services/ngx-grid-selection/ngx-grid-se
 import {NgxGridPaginationService} from './services/ngx-grid-pagination/ngx-grid-pagination.service';
 import {NgxServerFetcher} from './models/ngx-pagination.model';
 import {NgxGridService} from './ngx-grid.service';
+import {NgxGridFilterService} from './services/ngx-grid-filter/ngx-grid-filter.service';
+import {NgxColumnFilter} from './models/ngx-filter.model';
 
 @Component({
   selector: 'ngx-grid',
@@ -48,6 +50,7 @@ import {NgxGridService} from './ngx-grid.service';
     NgxGridSortService,
     NgxGridSelectionService,
     NgxGridPaginationService,
+    NgxGridFilterService,
     // Facade Service Provider
     NgxGridService
   ],
@@ -63,12 +66,15 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
   public readonly paginationMode = input<NgxPaginationMode>('client');
   public readonly serverFetcher = input<NgxServerFetcher<T> | null>(null);
   public readonly pageSizeOptions = input<number[]>([10, 25, 50]);
+  public readonly filterText = input<string>('');
+  public readonly columnFilters = input<NgxColumnFilter<T>[] | Record<string, any> | null>(null);
 
   // Outputs
   public readonly rowClicked = output<NgxBaseEvent<T, NgxOnRowClickChangesEvent<T>>>();
   public readonly selectionChanged = output<NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>>>();
   public readonly sortChanged = output<NgxBaseEvent<T, NgxOnSortChangesEvent<T>>>();
   public readonly pageChanged = output<NgxBaseEvent<T, NgxOnPageChangesEvent<T>>>();
+  public readonly filterChanged = output<NgxBaseEvent<T, NgxOnFilterChangesEvent<T>>>();
   public readonly apiReady = output<NgxGridApi<T>>();
 
   // Templates
@@ -98,12 +104,15 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
        paginationMode: this.paginationMode,
        serverFetcher: this.serverFetcher,
        pageSizeOptions: this.pageSizeOptions,
+       filterText: this.filterText,
+       columnFilters: this.columnFilters,
      },
      {
        rowClicked: this.rowClicked,
        selectionChanged: this.selectionChanged,
        sortChanged: this.sortChanged,
        pageChanged: this.pageChanged,
+       filterChanged: this.filterChanged,
        apiReady: this.apiReady,
      }
    )
@@ -127,6 +136,18 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
 
   public isSelected = (row: T, rowIndex: number): boolean =>
     this.grid.isSelected(row, rowIndex);
+
+  public setGlobalFilter = (text: string) =>
+    this.grid.setGlobalFilter(text);
+
+  public setColumnFilter = (filter: NgxColumnFilter<T>) =>
+    this.grid.setColumnFilter(filter);
+
+  public clearColumnFilter = (colId: string) =>
+    this.grid.clearColumnFilter(colId);
+
+  public clearAllFilters = () =>
+    this.grid.clearAllFilters();
 
   public getCellRawValue = (row: T, col: NgxColDef<T>, rowIndex: number): T =>
     this.grid.getCellRawValue(row, col, rowIndex);

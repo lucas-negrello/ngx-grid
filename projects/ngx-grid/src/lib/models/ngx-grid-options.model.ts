@@ -1,7 +1,7 @@
 import {NgxColDef} from './ngx-col-def.model';
 import {NgxDensity, NgxRowSelection} from './types';
 import {
-  NgxBaseEvent,
+  NgxBaseEvent, NgxOnFilterChangesEvent,
   NgxOnPageChangesEvent, NgxOnRowClickChangesEvent, NgxOnSelectionChangesEvent, NgxOnSortChangesEvent
 } from './events';
 
@@ -16,9 +16,12 @@ export interface NgxGridOptions<T = any> {
   onSelectionChanges?: (event: NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>>) => void;
   onSortChanges?: (event: NgxBaseEvent<T, NgxOnSortChangesEvent<T>> ) => void;
   onPageChanges?: (event: NgxBaseEvent<T, NgxOnPageChangesEvent<T>>) => void;
+  onFilterChanges?: (event: NgxBaseEvent<T, NgxOnFilterChangesEvent<T>>) => void;
 
   paginationPageSize?: number;
   paginationPageSizeOptions?: number[];
+
+  globalFilterPredicate?: (row: T, text: string) => boolean;
 
   // Layout/UX
   density?: NgxDensity;

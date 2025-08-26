@@ -7,21 +7,25 @@ import {NgxPaginationMode} from '../models/types';
 import {NgxPageRefreshOptions, NgxPageState, NgxServerFetcher} from '../models/ngx-pagination.model';
 import {map, Observable} from 'rxjs';
 import {
-  NgxBaseEvent,
+  NgxBaseEvent, NgxOnFilterChangesEvent,
   NgxOnPageChangesEvent,
   NgxOnSelectionChangesEvent,
   NgxOnSortChangesEvent
 } from '../models/events';
 import {NgxApiModel} from '../models/ngx-api.model';
+import {NgxGridFilterService} from '../services/ngx-grid-filter/ngx-grid-filter.service';
+import {NgxColumnFilter, NgxFilterModel} from '../models/ngx-filter.model';
 
 export class NgxGridApi<T = any> implements NgxApiModel<T> {
   public readonly pageChanges$: Observable<NgxBaseEvent<T, NgxOnPageChangesEvent<T>>>;
   public readonly sortChanges$: Observable<NgxBaseEvent<T, NgxOnSortChangesEvent<T>>>;
   public readonly selectionChanges$: Observable<NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>>>;
+  public readonly filterChanges$: Observable<NgxBaseEvent<T, NgxOnFilterChangesEvent<T>>>;
   constructor(
     private readonly _sort: NgxGridSortService<T>,
     private readonly _selection: NgxGridSelectionService<T>,
     private readonly _pagination: NgxGridPaginationService<T>,
+    private readonly _filter: NgxGridFilterService<T>,
     private readonly _data: NgxGridDataService<T>,
   ) {
     this.pageChanges$ = this._pagination.pageChanges$.pipe(
@@ -33,12 +37,36 @@ export class NgxGridApi<T = any> implements NgxApiModel<T> {
     this.selectionChanges$ = this._selection.selectionChanges$.pipe(
       map((event): NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>> => ({ api: this, event }))
     );
+    this.filterChanges$ = this._filter.filterChanges$.pipe(
+      map((event): NgxBaseEvent<T, NgxOnFilterChangesEvent<T>> => ({ api: this, event }))
+    );
   }
 
   // Sort API Functions
   public getSortModel = (): NgxSortModelItem[] => this._sort.sortModel();
   public setSortModel = (model: NgxSortModelItem[]): void => this._sort.setSortModel(model);
   public clearSort = (): void => this._sort.clearSort();
+
+  // Filter API Functions
+  setGlobalFilter(text: string): void {
+    this._filter.setGlobalText(text);
+  }
+
+  setColumnFilter(filter: NgxColumnFilter<T>): void {
+    this._filter.setColumnFilter(filter);
+  }
+
+  clearColumnFilter(colId: string | number): void {
+    this._filter.clearColumnFilter(colId);
+  }
+
+  clearAllFilters(): void {
+    this._filter.clearAll();
+  }
+
+  getFilterModel(): NgxFilterModel<T> {
+    return this._filter.getFilterModel();
+  }
 
   // Selection API Functions
   public getSelectedRows = (): T[] => this._selection.getSelectedRows();

@@ -1,4 +1,5 @@
 import {NgxAlignment, NgxSortDirection} from './types';
+import {NgxColumnFilter} from './ngx-filter.model';
 
 export interface NgxValueGetterParams<T = any> {
   data: T;
@@ -32,6 +33,8 @@ export interface NgxColDef<T = any> {
   sortable?: boolean;
   sort?: NgxSortDirection;
   sortIndex?: number;
+
+  filterPredicate?: (value: any, filter: NgxColumnFilter<T>) => boolean;
 
   valueGetter?: (params: NgxValueGetterParams<T>) => any;
   valueFormatter?: (params: NgxValueFormatterParams<T>) => string | number | null;

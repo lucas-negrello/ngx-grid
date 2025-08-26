@@ -3,15 +3,23 @@ import {NgxPaginationMode} from './types';
 import {NgxPageRefreshOptions, NgxPageState, NgxServerFetcher} from './ngx-pagination.model';
 import {Observable} from 'rxjs';
 import {
-  NgxBaseEvent, NgxOnPageChangesEvent,
+  NgxBaseEvent, NgxOnFilterChangesEvent, NgxOnPageChangesEvent,
   NgxOnSelectionChangesEvent, NgxOnSortChangesEvent
 } from './events';
+import {NgxColumnFilter, NgxFilterModel} from './ngx-filter.model';
 
 export interface NgxApiModel<T = any> {
   // Sort
   getSortModel: () => NgxSortModelItem[];
   setSortModel: (model: NgxSortModelItem[]) => void;
   clearSort: () => void;
+
+  // Filter
+  setGlobalFilter: (text: string) => void;
+  setColumnFilter: (filter: NgxColumnFilter<T>) => void;
+  clearColumnFilter: (colId: string | number) => void;
+  clearAllFilters: () => void;
+  getFilterModel: () => NgxFilterModel<T>;
 
   // Selection
   getSelectedRows: () => T[];
@@ -42,4 +50,5 @@ export interface NgxApiModel<T = any> {
   readonly pageChanges$: Observable<NgxBaseEvent<T, NgxOnPageChangesEvent<T>>>;
   readonly selectionChanges$: Observable<NgxBaseEvent<T, NgxOnSelectionChangesEvent<T>>>;
   readonly sortChanges$: Observable<NgxBaseEvent<T, NgxOnSortChangesEvent<T>>>;
+  readonly filterChanges$: Observable<NgxBaseEvent<T, NgxOnFilterChangesEvent<T>>>;
 }
