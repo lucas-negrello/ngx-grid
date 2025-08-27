@@ -37,11 +37,13 @@ export class NgxGridPaginationService<T = any> {
   public readonly mode = computed(() => this._mode());
   public readonly pageIndex = computed(() => this._pageIndex());
   public readonly pageSize = computed(() => this._pageSize());
-  public readonly total = computed(() =>
-    this._mode() === 'server'
-      ? (this._totalOverride() ?? 0)
+  public readonly total = computed(() => {
+    const override = this._totalOverride();
+    if (override !== null) return override;
+    return this._mode() === 'server'
+      ? 0
       : (this._data()?.length ?? 0)
-  );
+  });
   public readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.total() / Math.max(1, this._pageSize())))
   );
