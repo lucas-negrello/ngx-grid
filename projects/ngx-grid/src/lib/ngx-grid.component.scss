@@ -215,3 +215,11 @@ th, td {
   .nxg-paginator__buttons button { background: var(--nxg-row-bg); color: var(--nxg-text); }
   .nxg-paginator__page-size select { background: var(--nxg-row-bg); color: var(--nxg-text); }
 }
+
+/* Filtro por coluna no header */
+.nxg-th__filter {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  cursor: default; /* evita cursor de sort nesta área */
+}

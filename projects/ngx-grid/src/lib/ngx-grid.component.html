@@ -42,6 +42,9 @@
                 }
               </span>
             }
+            <span class="nxg-th__filter" (click)="$event.stopPropagation()">
+              <ngx-column-filter [col]="col"></ngx-column-filter>
+            </span>
           </th>
         }
       </tr>

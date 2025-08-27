@@ -33,12 +33,14 @@ import {NgxServerFetcher} from './models/ngx-pagination.model';
 import {NgxGridService} from './ngx-grid.service';
 import {NgxGridFilterService} from './services/ngx-grid-filter/ngx-grid-filter.service';
 import {NgxColumnFilter} from './models/ngx-filter.model';
+import {NgxColumnFilterComponent} from './components/ngx-column-filter/ngx-column-filter.component';
 
 @Component({
   selector: 'ngx-grid',
   imports: [
     NgTemplateOutlet,
-    NgClass
+    NgClass,
+    NgxColumnFilterComponent
   ],
   templateUrl: './ngx-grid.component.html',
   styleUrl: './ngx-grid.component.scss',
