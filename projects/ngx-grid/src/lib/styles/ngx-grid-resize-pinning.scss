@@ -1,0 +1,37 @@
+/* Handle de resize no header */
+.ngx-col-resizer {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 4;
+  user-select: none;
+}
+.ngx-col-resizer:hover {
+  background: rgba(0,0,0,0.06);
+}
+
+/* Cursor global durante o drag */
+body.ngx-resize-cursor {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+/* Estilos comuns para pinned */
+.ngx-header-cell.pinned-start,
+.ngx-cell.pinned-start {
+  position: sticky;
+  z-index: 3; /* acima das células comuns */
+  background: inherit;
+}
+
+.ngx-header-cell.pinned-end,
+.ngx-cell.pinned-end {
+  position: sticky;
+  z-index: 3;
+  background: inherit;
+}
+
+/* Você aplicará left/right inline via ngStyle (offsets calculados) */

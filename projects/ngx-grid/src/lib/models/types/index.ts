@@ -1,7 +1,7 @@
 import {
   NgxAlignmentConst,
   NgxDensityConst,
-  NgxPaginationModeConst,
+  NgxPaginationModeConst, NgxPinnedSideConst,
   NgxRowSelectionConst,
   NgxSortDirectionConst
 } from '../constants';
@@ -24,3 +24,4 @@ export type NgxFilterOperator =
   | 'notIn'
   | 'isEmpty'
   | 'isNotEmpty';
+export type NgxPinnedSide = keyof typeof NgxPinnedSideConst;

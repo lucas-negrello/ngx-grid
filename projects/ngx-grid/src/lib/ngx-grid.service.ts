@@ -14,9 +14,10 @@ import {
   NgxOnRowClickChangesEvent, NgxOnSelectionChangesEvent, NgxOnSortChangesEvent
 } from './models/events';
 import {NgxColDef} from './models/ngx-col-def.model';
-import {NgxSortDirection} from './models/types';
+import {NgxPinnedSide, NgxSortDirection} from './models/types';
 import {NgxGridFilterService} from './services/ngx-grid-filter/ngx-grid-filter.service';
 import {NgxColumnFilter} from './models/ngx-filter.model';
+import {NgxGridLayoutService} from './services/ngx-grid-layout/ngx-grid-layout.service';
 
 @Injectable()
 export class NgxGridService<T = any> {
@@ -32,6 +33,7 @@ export class NgxGridService<T = any> {
   private readonly _selectionService: NgxGridSelectionService<T> = inject(NgxGridSelectionService);
   private readonly _paginationService: NgxGridPaginationService<T> = inject(NgxGridPaginationService);
   private readonly _filterService: NgxGridFilterService<T> = inject(NgxGridFilterService);
+  private readonly _layoutService: NgxGridLayoutService<T> = inject(NgxGridLayoutService);
 
   // Derivated State
   public readonly data = this._dataService.data;
@@ -113,6 +115,7 @@ export class NgxGridService<T = any> {
     this._selectionService.bind(inputs.gridOptions, inputs.rowSelection, this.data);
     this._paginationService.bind(this.data, inputs.gridOptions()?.paginationPageSize ?? 25);
     this._filterService.bind(this.effectiveColDefs, inputs.gridOptions, this._valueService, inputs.filterText, inputs.columnFilters);
+    this._layoutService.bind(this.effectiveColDefs);
 
     effect(() => {
       this._paginationService.setTotalOverride(this.filteredRows().length);
@@ -131,7 +134,39 @@ export class NgxGridService<T = any> {
     this._emitPageChanges(inputs, outputs);
     this._emitFilterChanges(inputs, outputs);
 
-  }
+  };
+
+  public getHeaderCellStyle = (col: NgxColDef<T>): Record<string, any> => {
+    const id = col.colId as (string | number);
+    const style: Record<string, any> = {
+      position: (this.isPinnedStart(col) || this.isPinnedEnd(col)) ? 'sticky' : null,
+      width: `${this._layoutService.getColumnWidth(id)}px`,
+      minWidth: `${this._layoutService.getColumnMinWidth(id)}px`,
+      maxWidth: `${this._layoutService.getColumnMaxWidth(id)}px`,
+      zIndex: (this.isPinnedStart(col) || this.isPinnedEnd(col)) ? 3 : null,
+    };
+    if (this.isPinnedStart(col)) style['left'] = `${this._layoutService.getPinnedOffset(id)}px`;
+    if (this.isPinnedEnd(col)) style['right'] = `${this._layoutService.getPinnedOffset(id)}px`;
+    return style;
+  };
+
+  public getBodyCellStyle = (col: NgxColDef<T>): Record<string, any> => {
+    return this.getHeaderCellStyle(col);
+  };
+
+  public isPinnedStart = (col: NgxColDef<T>): boolean =>
+    this._layoutService.isPinnedStart(col.colId as (string | number));
+
+  public isPinnedEnd = (col: NgxColDef<T>): boolean =>
+    this._layoutService.isPinnedEnd(col.colId as (string | number));
+
+  public pinColumn = (colId: string | number, side: NgxPinnedSide): void =>
+    this._layoutService.pinColumn(colId, side);
+
+  public setColumnWidth = (colId: string | number, width: number): void =>
+    this._layoutService.setColumnWidth(colId, width);
+
+  public onInternalColumnResized?: (colId: string | number, width: number) => void;
 
   public afterContentInit = (
     cellTemplates: QueryList<NgxCellTemplateDirective>,
@@ -149,7 +184,7 @@ export class NgxGridService<T = any> {
       this._dataService,
     );
     this._outputs.apiReady.emit(this._api);
-  }
+  };
 
   private _rebuildTemplateMaps = (
     cellTemplates: QueryList<NgxCellTemplateDirective>,
@@ -163,7 +198,7 @@ export class NgxGridService<T = any> {
 
     this.cellTemplateMap.set(cellMap);
     this.headerTemplateMap.set(headerMap);
-  }
+  };
 
   public isColumnFilterEnabled =
     (col: NgxColDef<T>): boolean => {

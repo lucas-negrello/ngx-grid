@@ -1,4 +1,4 @@
-import {NgxAlignment, NgxFilterOperator, NgxSortDirection} from './types';
+import {NgxAlignment, NgxFilterOperator, NgxPinnedSide, NgxSortDirection} from './types';
 import {NgxColumnFilter} from './ngx-filter.model';
 
 export interface NgxValueGetterParams<T = any> {
@@ -37,7 +37,6 @@ export interface NgxColDef<T = any> {
   field?: keyof T & string | string;
   headerName?: string;
   headerTooltip?: string;
-  width?: number | string;
   sortable?: boolean;
   sort?: NgxSortDirection;
   sortIndex?: number;
@@ -56,6 +55,12 @@ export interface NgxColDef<T = any> {
     nodeB: NgxRowNode<T>,
     isInverted: boolean
   ) => number;
+
+  width?: number;
+  minWidth?: number;
+  maxWidth?: number;
+  resizable?: boolean;
+  pinned?: NgxPinnedSide;
 
   cellClass?: string | string[] | ((params: NgxCellRendererParams<T>) => string | string[] | null); //ver
   align?: NgxAlignment;

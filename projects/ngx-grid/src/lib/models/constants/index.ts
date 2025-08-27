@@ -26,3 +26,8 @@ export const NgxDensityConst = {
   comfortable: 'comfortable',
   spacious: 'spacious',
 } as const;
+
+export const NgxPinnedSideConst = {
+  start: 'start',
+  end: 'end',
+} as const;

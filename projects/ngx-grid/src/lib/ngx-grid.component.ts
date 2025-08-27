@@ -34,6 +34,7 @@ import {NgxGridService} from './ngx-grid.service';
 import {NgxGridFilterService} from './services/ngx-grid-filter/ngx-grid-filter.service';
 import {NgxColumnFilter} from './models/ngx-filter.model';
 import {NgxColumnFilterComponent} from './components/ngx-column-filter/ngx-column-filter.component';
+import {NgxGridLayoutService} from './services/ngx-grid-layout/ngx-grid-layout.service';
 
 @Component({
   selector: 'ngx-grid',
@@ -53,6 +54,7 @@ import {NgxColumnFilterComponent} from './components/ngx-column-filter/ngx-colum
     NgxGridSelectionService,
     NgxGridPaginationService,
     NgxGridFilterService,
+    NgxGridLayoutService,
     // Facade Service Provider
     NgxGridService
   ],
