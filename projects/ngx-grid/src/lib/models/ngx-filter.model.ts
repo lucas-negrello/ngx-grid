@@ -1,7 +1,7 @@
 import {NgxFilterOperator} from './types';
 
 export interface NgxColumnFilter<T = any> {
-  colId: string;
+  colId: string | number;
   operator: NgxFilterOperator;
   value?: any;
   caseSensitive?: boolean;

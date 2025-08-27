@@ -59,7 +59,7 @@ export class NgxGridFilterService<T = any> {
         const arr = Array.isArray(ext)
           ? (ext as NgxColumnFilter<T>[])
           : this._normalizeRecordToArray(ext as Record<string, any>);
-        const map = new Map<string, NgxColumnFilter<T>>();
+        const map = new Map<string | number, NgxColumnFilter<T>>();
         for (const filter of arr) {
           if (filter?.colId) map.set(filter.colId, filter);
         }
@@ -103,6 +103,10 @@ export class NgxGridFilterService<T = any> {
   public getColumnFilters =
     () =>
       Array.from(this._columnFilters().values());
+
+  public getColumnFilter =
+    (colId: string | number): NgxColumnFilter<T> | undefined =>
+      this._columnFilters().get(colId);
 
   public apply =
     (rows: T[]): T[] => {

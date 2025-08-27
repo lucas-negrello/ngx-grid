@@ -1,4 +1,4 @@
-import {NgxColDef} from './ngx-col-def.model';
+import {NgxColDef, NgxColumnFilterOptions} from './ngx-col-def.model';
 import {NgxDensity, NgxRowSelection} from './types';
 import {
   NgxBaseEvent, NgxOnFilterChangesEvent,
@@ -21,6 +21,8 @@ export interface NgxGridOptions<T = any> {
   paginationPageSize?: number;
   paginationPageSizeOptions?: number[];
 
+  enableColumnFilter?: boolean;
+  columnFilterDefaults?: Omit<NgxColumnFilterOptions<T>, 'enabled'>;
   globalFilterPredicate?: (row: T, text: string) => boolean;
 
   // Layout/UX

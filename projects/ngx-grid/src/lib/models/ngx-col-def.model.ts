@@ -1,4 +1,4 @@
-import {NgxAlignment, NgxSortDirection} from './types';
+import {NgxAlignment, NgxFilterOperator, NgxSortDirection} from './types';
 import {NgxColumnFilter} from './ngx-filter.model';
 
 export interface NgxValueGetterParams<T = any> {
@@ -24,6 +24,14 @@ export interface NgxRowNode<T = any> {
   selected: boolean;
 }
 
+export interface NgxColumnFilterOptions<T = any> {
+  enabled?: boolean;
+  showPopup?: boolean;
+  operators?: NgxFilterOperator[];
+  placeholder?: string;
+  caseSensitive?: boolean;
+}
+
 export interface NgxColDef<T = any> {
   colId?: string | number;
   field?: keyof T & string | string;
@@ -34,6 +42,7 @@ export interface NgxColDef<T = any> {
   sort?: NgxSortDirection;
   sortIndex?: number;
 
+  filter?: boolean | NgxColumnFilterOptions<T>;
   filterPredicate?: (value: any, filter: NgxColumnFilter<T>) => boolean;
 
   valueGetter?: (params: NgxValueGetterParams<T>) => any;

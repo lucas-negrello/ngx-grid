@@ -45,6 +45,8 @@ export class NgxGridService<T = any> {
   private _outputs!: NgxGridOutputs<T>;
   private _api!: NgxGridApi<T>;
 
+  public get __inputs() { return this._inputs; }
+
   private _emitSelectionChanges =
     (inputs: NgxGridInputs<T>, outputs: NgxGridOutputs<T>) =>
       effect(() => {
@@ -157,6 +159,14 @@ export class NgxGridService<T = any> {
     this.cellTemplateMap.set(cellMap);
     this.headerTemplateMap.set(headerMap);
   }
+
+  public isColumnFilterEnabled =
+    (col: NgxColDef<T>): boolean => {
+      const global = this._inputs.gridOptions()?.enableColumnFilter ?? true;
+      if (typeof col.filter === 'boolean') return global && col.filter;
+      const enabled = col.filter?.enabled;
+      return global && (enabled ?? true);
+    };
 
   public onHeaderClick =
     (col: NgxColDef<T>, event: MouseEvent): void =>

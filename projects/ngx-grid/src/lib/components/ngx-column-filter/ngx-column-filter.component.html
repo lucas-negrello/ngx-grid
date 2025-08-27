@@ -1,0 +1,63 @@
+<span class="ngx-col-filter" [class.disabled]="!options().enabled" (click)="$event.stopPropagation()">
+  <button
+    class="ngx-col-filter__btn"
+    type="button"
+    [disabled]="!options().enabled || !options().showPopup"
+    title="Filter"
+    (click)="toggle($event)"
+  >
+    <svg width="14" height="14" viewBox="0 0 24 24" class="icon">
+      <path d="M3 4h18l-7 8v6l-4 2v-8L3 4z" fill="currentColor"></path>
+    </svg>
+  </button>
+
+  @if (options().enabled && !options().showPopup) {
+    <input
+      class="ngx-col-filter__inline"
+      type="text"
+      [placeholder]="options().placeholder"
+      [value]="current()?.value ?? ''"
+      (click)="$event.stopPropagation()"
+      (input)="onInlineChange($any($event.target).value)"
+    />
+  }
+
+  @if (open() && options().enabled && options().showPopup) {
+    <div class="ngx-col-filter__popup" (click)="$event.stopPropagation()">
+    <div class="ngx-col-filter__row">
+      <label>Operator</label>
+      <select [value]="current()?.operator ?? operator()" (change)="operator.set($any($event.target).value)">
+        @for (op of options().operators; track $index) {
+          <option [value]="op">{{ op }}</option>
+        }
+      </select>
+    </div>
+
+      @if (!(operator() === 'isEmpty' || operator() === 'isNotEmpty')) {
+        <div class="ngx-col-filter__row">
+        <label>Valor</label>
+        <input
+          type="text"
+          [placeholder]="options().placeholder"
+          [value]="current()?.value ?? value()"
+          (input)="value.set($any($event.target).value)"
+        />
+      </div>
+      }
+
+      @if (['contains','equals','startsWith','endsWith'].includes(operator())) {
+        <div class="ngx-col-filter__row">
+        <label class="ngx-col-filter__checkbox">
+          <input type="checkbox" [checked]="current()?.caseSensitive ?? caseSensitive()" (change)="caseSensitive.set($any($event.target).checked)" />
+          Case sensitive
+        </label>
+      </div>
+      }
+
+      <div class="ngx-col-filter__actions">
+      <button type="button" (click)="clear()">Clear</button>
+      <button type="button" class="primary" (click)="apply()">Apply</button>
+    </div>
+  </div>
+  }
+</span>
