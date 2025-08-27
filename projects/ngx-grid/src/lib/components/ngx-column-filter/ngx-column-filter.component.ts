@@ -20,6 +20,12 @@ export class NgxColumnFilterComponent<T = any> {
   public readonly open = signal(false);
   public readonly colId = computed(() => this.col().colId ?? this.col().field ?? '');
   public readonly gridOptions = computed<NgxGridOptions<T> | null>(() => this._grid['__inputs']?.gridOptions?.() ?? null);
+  public readonly enabled = computed<boolean>(() => {
+    const global = this.gridOptions()?.enableColumnFilter ?? true;
+    if (!global) return false;
+    if (typeof this.col()?.filter === 'boolean') return this.col()?.filter as boolean;
+    return (this.col().filter as NgxColumnFilterOptions<T> | undefined)?.enabled ?? true;
+  });
   public readonly options = computed<Required<Omit<NgxColumnFilterOptions<T>, 'operators'>> & { operators: NgxFilterOperator[] }>(() => {
     const defaults = (this.gridOptions()?.columnFilterDefaults ?? {}) as NgxColumnFilterOptions<T>;
     const colOptions = typeof this.col()?.filter === 'object' ? (this.col().filter as NgxColumnFilterOptions<T>) : {};
@@ -40,9 +46,7 @@ export class NgxColumnFilterComponent<T = any> {
 
   public toggle = (e: MouseEvent) => {
     e.stopPropagation();
-    if (!this.options().enabled) return;
-    if (!this.options().showPopup) return;
-
+    if (!this.enabled() || !this.options().showPopup) return;
     const c = this.current();
     this.operator.set(c?.operator ?? this.operator());
     this.value.set(c?.value ?? '');
