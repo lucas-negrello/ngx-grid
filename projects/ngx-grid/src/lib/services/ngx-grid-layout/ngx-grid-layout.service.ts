@@ -33,7 +33,7 @@ export class NgxGridLayoutService<T = any> {
           });
         } else {
           const st = current.get(id)!;
-          if (st.width === null && col.width !== null) st.width = col.width ?? this.DEFAULT_WIDTH;
+          if (st.width === null && col.width !== null) st.width = col.width ?? null;
           if (st.pinned === null && col.pinned !== null) st.pinned = col.pinned ?? null;
         }
       }

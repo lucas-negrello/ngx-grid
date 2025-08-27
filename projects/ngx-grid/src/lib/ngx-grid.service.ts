@@ -136,22 +136,71 @@ export class NgxGridService<T = any> {
 
   };
 
+  private _resizeMoveUnlisten?: () => void;
+  private _resizeUpUnlisten?: () => void;
+  private _resizeStartX = 0;
+  private _resizeStartWidth = 0;
+  private _resizeColId: string | number | null = null;
+
+  public onHeaderResizeStart = (ev: MouseEvent, col: NgxColDef<T>): void => {
+    if (!this.isResizable(col)) return;
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    const colId = col.colId as (string | number);
+    this._resizeColId = colId;
+    this._resizeStartX = ev.clientX;
+    this._resizeStartWidth = this._layoutService.getColumnWidth(colId);
+
+    document.body.classList.add('ngx-resize-cursor');
+
+    const move = (e: MouseEvent) => {
+      if (this._resizeColId == null) return;
+      const dx = e.clientX - this._resizeStartX;
+      this._layoutService.setColumnWidth(this._resizeColId, this._resizeStartWidth + dx);
+    };
+    const up = () => {
+      document.body.classList.remove('ngx-resize-cursor');
+      this._resizeColId = null;
+      try { this._resizeMoveUnlisten?.(); } catch {}
+      try { this._resizeUpUnlisten?.(); } catch {}
+      this._resizeMoveUnlisten = undefined;
+      this._resizeUpUnlisten = undefined;
+    };
+
+    this._resizeMoveUnlisten = window.addEventListener ? (() => {
+      const moveListener = (e: MouseEvent) => move(e);
+      const upListener = () => up();
+      window.addEventListener('mousemove', moveListener);
+      window.addEventListener('mouseup', upListener);
+      return () => {
+        window.removeEventListener('mousemove', moveListener);
+        window.removeEventListener('mouseup', upListener);
+      };
+    })() : undefined;
+    this._resizeUpUnlisten = () => {};
+  };
+
   public getHeaderCellStyle = (col: NgxColDef<T>): Record<string, any> => {
     const id = col.colId as (string | number);
+    const pinnedStart = this.isPinnedStart(col);
+    const pinnedEnd = this.isPinnedEnd(col);
     const style: Record<string, any> = {
-      position: (this.isPinnedStart(col) || this.isPinnedEnd(col)) ? 'sticky' : null,
       width: `${this._layoutService.getColumnWidth(id)}px`,
       minWidth: `${this._layoutService.getColumnMinWidth(id)}px`,
       maxWidth: `${this._layoutService.getColumnMaxWidth(id)}px`,
-      zIndex: (this.isPinnedStart(col) || this.isPinnedEnd(col)) ? 3 : null,
+      position: (pinnedStart || pinnedEnd) ? 'sticky' : null,
+      zIndex: (pinnedStart || pinnedEnd) ? 3 : null
     };
-    if (this.isPinnedStart(col)) style['left'] = `${this._layoutService.getPinnedOffset(id)}px`;
-    if (this.isPinnedEnd(col)) style['right'] = `${this._layoutService.getPinnedOffset(id)}px`;
+    if (pinnedStart) style['left'] = `${this._layoutService.getPinnedOffset(id)}px`;
+    if (pinnedEnd) style['right'] = `${this._layoutService.getPinnedOffset(id)}px`;
     return style;
   };
 
-  public getBodyCellStyle = (col: NgxColDef<T>): Record<string, any> => {
-    return this.getHeaderCellStyle(col);
+  public getBodyCellStyle = (col: NgxColDef<T>): Record<string, any> => this.getHeaderCellStyle(col);
+
+  public isResizable = (col: NgxColDef<T>): boolean => {
+    return col.resizable !== false;
   };
 
   public isPinnedStart = (col: NgxColDef<T>): boolean =>
