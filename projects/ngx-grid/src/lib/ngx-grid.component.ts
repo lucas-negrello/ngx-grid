@@ -35,13 +35,15 @@ import {NgxGridFilterService} from './services/ngx-grid-filter/ngx-grid-filter.s
 import {NgxColumnFilter} from './models/ngx-filter.model';
 import {NgxColumnFilterComponent} from './components/ngx-column-filter/ngx-column-filter.component';
 import {NgxGridLayoutService} from './services/ngx-grid-layout/ngx-grid-layout.service';
+import {NgxColumnResizerDirective} from './directives/ngx-collumn-resizer.directive';
 
 @Component({
   selector: 'ngx-grid',
   imports: [
     NgTemplateOutlet,
     NgClass,
-    NgxColumnFilterComponent
+    NgxColumnFilterComponent,
+    NgxColumnResizerDirective
   ],
   templateUrl: './ngx-grid.component.html',
   styleUrl: './ngx-grid.component.scss',

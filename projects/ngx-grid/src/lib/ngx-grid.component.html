@@ -23,6 +23,7 @@
             [attr.title]="col.headerTooltip || null"
             [style.text-align]="col.headerAlign || 'left'"
             [style.width]="col.width"
+            [style.position]="'relative'"
             [class.nxg-th--sortable]="col.sortable !== false"
             (click)="onHeaderClick(col, $event)"
             [attr.aria-sort]="getSortFor(col) === 'none' ? 'none' : (getSortFor(col) === 'asc' ? 'ascending' : 'descending')"
@@ -45,6 +46,16 @@
             <span class="nxg-th__filter" (click)="$event.stopPropagation()">
               <ngx-column-filter [col]="col"></ngx-column-filter>
             </span>
+
+            @if (col.resizable !== false) {
+              <span
+                ngxColumnResizer
+                [colId]="col.colId!"
+                (click)="$event.stopPropagation()"
+                style="position:absolute;top:0;right:-3px;width:6px;height:100%;cursor:col-resize;z-index:4;user-select:none"
+                title="Arraste para redimensionar"
+              ></span>
+            }
           </th>
         }
       </tr>
