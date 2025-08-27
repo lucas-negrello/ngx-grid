@@ -1,66 +1,55 @@
 @if (enabled()) {
-  <span class="ngx-col-filter" (click)="$event.stopPropagation()">
-  <button
-    class="ngx-col-filter__btn"
-    type="button"
-    [disabled]="!options().showPopup"
-    title="Filter"
-    (click)="toggle($event)"
-  >
-    <svg width="14" height="14" viewBox="0 0 24 24" class="icon">
-      <path d="M3 4h18l-7 8v6l-4 2v-8L3 4z" fill="currentColor"></path>
-    </svg>
-  </button>
+  <div class="nxg-column-filter" [class.is-open]="open()">
+    <button type="button" class="nxg-filter-trigger" (click)="toggle($event)" [disabled]="!enabled()">
+      <span class="nxg-filter-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" height="14" width="14" fill="#444"><path
+          d="M96 128C83.1 128 71.4 135.8 66.4 147.8C61.4 159.8 64.2 173.5 73.4 182.6L256 365.3L256 480C256 488.5 259.4 496.6 265.4 502.6L329.4 566.6C338.6 575.8 352.3 578.5 364.3 573.5C376.3 568.5 384 556.9 384 544L384 365.3L566.6 182.7C575.8 173.5 578.5 159.8 573.5 147.8C568.5 135.8 556.9 128 544 128L96 128z"/>
+        </svg>
+      </span>
+      @if (current() && current()?.value !== '') {
+        <span class="nxg-filter-badge"></span>
+      }
+    </button>
 
-    @if (!options().showPopup) {
-      <input
-        class="ngx-col-filter__inline"
-        type="text"
-        [placeholder]="options().placeholder"
-        [value]="current()?.value ?? ''"
-        (click)="$event.stopPropagation()"
-        (input)="onInlineChange($any($event.target).value)"
-      />
+    @if (open()) {
+      <div class="nxg-filter__popup" [ngStyle]="{ left: getPopupLeft(), top: getPopupTop() }"
+           (click)="$event.stopPropagation()">
+        <div class="nxg-filter__header">
+          <span class="nxg-filter__title">{{ col().headerName || col().field }}</span>
+          <button type="button" class="nxg-filter__close" (click)="open.set(false)">✕</button>
+        </div>
+
+        <div class="nxg-filter__body">
+          <label class="nxg-filter__row">
+            <span class="nxg-filter__label">Operador</span>
+            <select class="nxg-filter__select" [ngModel]="operator()" (ngModelChange)="operator.set($event)">
+              @for (op of options().operators; track $index) {
+                <option [ngValue]="op">{{ op }}</option>
+              }
+            </select>
+          </label>
+
+          @if (operator() !== 'isEmpty' && operator() !== 'isNotEmpty') {
+            <label class="nxg-filter__row">
+              <span class="nxg-filter__label">Valor</span>
+              <input class="nxg-filter__input" [placeholder]="options().placeholder" [ngModel]="value()"
+                     (ngModelChange)="value.set($event)"/>
+            </label>
+          }
+
+          <label class="nxg-filter__row">
+            <input type="checkbox" class="nxg-filter__checkbox" [ngModel]="caseSensitive()"
+                   (ngModelChange)="caseSensitive.set($event)"/>
+            <span>Case sensitive</span>
+          </label>
+        </div>
+
+        <div class="nxg-filter__footer">
+          <button type="button" class="nxg-btn nxg-btn--primary" (click)="apply()">Aplicar</button>
+          <button type="button" class="nxg-btn" (click)="clear()">Limpar</button>
+        </div>
+      </div>
     }
-
-    @if (open() && options().showPopup) {
-      <div class="ngx-col-filter__popup" (click)="$event.stopPropagation()">
-    <div class="ngx-col-filter__row">
-      <label>Operator</label>
-      <select [value]="current()?.operator ?? operator()" (change)="operator.set($any($event.target).value)">
-        @for (op of options().operators; track $index) {
-          <option [value]="op">{{ op }}</option>
-        }
-      </select>
-    </div>
-
-        @if (!(operator() === 'isEmpty' || operator() === 'isNotEmpty')) {
-          <div class="ngx-col-filter__row">
-        <label>Valor</label>
-        <input
-          type="text"
-          [placeholder]="options().placeholder"
-          [value]="current()?.value ?? value()"
-          (input)="value.set($any($event.target).value)"
-        />
-      </div>
-        }
-
-        @if (['contains','equals','startsWith','endsWith'].includes(operator())) {
-          <div class="ngx-col-filter__row">
-        <label class="ngx-col-filter__checkbox">
-          <input type="checkbox" [checked]="current()?.caseSensitive ?? caseSensitive()" (change)="caseSensitive.set($any($event.target).checked)" />
-          Case sensitive
-        </label>
-      </div>
-        }
-
-        <div class="ngx-col-filter__actions">
-      <button type="button" (click)="clear()">Clear</button>
-      <button type="button" class="primary" (click)="apply()">Apply</button>
-    </div>
   </div>
-    }
-</span>
 }
 

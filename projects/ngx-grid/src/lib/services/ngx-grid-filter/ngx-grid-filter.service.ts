@@ -5,6 +5,7 @@ import {NgxGridValueService} from '../ngx-grid-value/ngx-grid-value.service';
 import {NgxColumnFilter, NgxFilterModel} from '../../models/ngx-filter.model';
 import {Observable, of} from 'rxjs';
 import {toObservable} from '@angular/core/rxjs-interop';
+import {NgxFilterOperator} from '../../models/types';
 
 @Injectable({
   providedIn: null
@@ -129,7 +130,10 @@ export class NgxGridFilterService<T = any> {
             const col = this._resolveColDef(colId);
             if (!col) continue;
             const cellVal = this._getCellRawValue(row, col, index);
-            if (!this._matchOperator(cellVal, filter)) return false;
+            if (typeof col.filterPredicate === 'function') {
+              if (!col.filterPredicate(cellVal, filter)) return false;
+            }
+            else if (!this._matchOperator(cellVal, filter)) return false;
           }
         }
 
@@ -187,69 +191,86 @@ export class NgxGridFilterService<T = any> {
       try {
         return this._valueService.getCellRawValue(row, col, index);
       } catch {
-        const field = (col as any).field;
-        return field ? (row as any)?.[field] : (row as any);
+        const path = col.field ?? '';
+        if (!path) return undefined;
+        return this._get(row, path);
       }
     };
 
-  private _matchOperator =
-    (value: any, filter: NgxColumnFilter<T>): boolean => {
-      const operator = filter.operator;
-      const caseSensitive = !!filter.caseSensitive;
+  private _get = (obj: any, path: string): any => {
+    try {
+      return path.split('.').reduce((acc, key) =>
+        (acc == null ? undefined : acc[key]), obj);
+    } catch {
+      return undefined;
+    }
+  }
 
-      const col = this._resolveColDef(filter.colId);
-      if (col?.filterPredicate && typeof col.filterPredicate === 'function') {
-        try {
-          return col.filterPredicate(value, filter);
-        } catch {
+  private _matchOperator = (value: any, filter: NgxColumnFilter<T>): boolean => {
+    const op: NgxFilterOperator = filter?.operator ?? 'contains';
+    const caseSensitive = !!filter?.caseSensitive;
 
-        }
+    if (op === 'isEmpty') {
+      if (value == null) return true;
+      if (typeof value === 'string') return value.length === 0;
+      if (Array.isArray(value)) return value.length === 0;
+      return String(value).length === 0;
+    }
+    if (op === 'isNotEmpty') {
+      if (value == null) return false;
+      if (typeof value === 'string') return value.length > 0;
+      if (Array.isArray(value)) return value.length > 0;
+      return String(value).length > 0;
+    }
+
+    const v = value as any;
+    const f = filter?.value as any;
+
+    const toStr = (x: any) => (x == null ? '' : String(x));
+    const toCmpStr = (x: any) => (caseSensitive ? toStr(x) : toStr(x).toLowerCase());
+
+    const isNumber = (x: any) => typeof x === 'number' || (x !== null && x !== '' && !isNaN(x));
+    const toNum = (x: any) => (typeof x === 'number' ? x : parseFloat(x));
+    const isDate = (x: any) => x instanceof Date || (!isNaN(Date.parse(x)));
+    const toDate = (x: any) => (x instanceof Date ? x : new Date(x));
+
+    if (['gt', 'gte', 'lt', 'lte'].includes(op)) {
+      if (isNumber(v) && isNumber(f)) {
+        const a = toNum(v);
+        const b = toNum(f);
+        if (op === 'gt') return a > b;
+        if (op === 'gte') return a >= b;
+        if (op === 'lt') return a < b;
+        if (op === 'lte') return a <= b;
       }
-
-      const isNil = (value: any) => value === null || value === undefined;
-      const toStr = (value: any) => (isNil(value) ? '' : String(value));
-      const sVal = toStr(value);
-      const sFilter = toStr(filter.value);
-
-      switch (operator) {
-        case 'contains':
-          return caseSensitive
-            ? sVal.includes(sFilter)
-            : sVal.toLowerCase().includes(sFilter.toLowerCase());
-        case 'equals':
-          return caseSensitive
-            ? sVal === sFilter
-            : sVal.toLowerCase() === sFilter.toLowerCase();
-        case 'startsWith':
-          return caseSensitive
-            ? sVal.startsWith(sFilter)
-            : sVal.toLowerCase().startsWith(sFilter.toLowerCase());
-        case 'endsWith':
-          return caseSensitive
-            ? sVal.endsWith(sFilter)
-            : sVal.toLowerCase().endsWith(sFilter.toLowerCase());
-        case 'gt':
-          return Number(value) > Number(filter.value);
-        case 'gte':
-          return Number(value) >= Number(filter.value);
-        case 'lt':
-          return Number(value) < Number(filter.value);
-        case 'lte':
-          return Number(value) <= Number(filter.value);
-        case 'in': {
-          const set = new Set(Array.isArray(filter.value) ? filter.value : [filter.value]);
-          return set.has(value);
-        }
-        case 'notIn': {
-          const set = new Set(Array.isArray(filter.value) ? filter.value : [filter.value]);
-          return !set.has(value);
-        }
-        case 'isEmpty':
-          return isNil(value) || (typeof value === 'string' && value.trim() === '');
-        case 'isNotEmpty':
-          return !isNil(value) && (typeof value !== 'string' || value.trim() !== '');
-        default:
-          return true;
+      if (isDate(v) && isDate(f)) {
+        const a = toDate(v).getTime();
+        const b = toDate(f).getTime();
+        if (op === 'gt') return a > b;
+        if (op === 'gte') return a >= b;
+        if (op === 'lt') return a < b;
+        if (op === 'lte') return a <= b;
       }
-    };
+      return false;
+    }
+
+    const sv = toCmpStr(v);
+    const sf = toCmpStr(f);
+
+    switch (op) {
+      case 'contains':
+        return sv.includes(sf);
+      case 'equals':
+        if (isNumber(v) && isNumber(f)) return toNum(v) === toNum(f);
+        if (isDate(v) && isDate(f)) return toDate(v).getTime() === toDate(f).getTime();
+        return sv === sf;
+      case 'startsWith':
+        return sv.startsWith(sf);
+      case 'endsWith':
+        return sv.endsWith(sf);
+      default:
+        // fallback
+        return sv.includes(sf);
+    }
+  };
 }

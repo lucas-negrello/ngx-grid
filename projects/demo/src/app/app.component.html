@@ -1,12 +1,17 @@
-<h1>{{ title }}</h1>
+<div class="demo-wrapper">
+  <h1>{{ title }}</h1>
 
-<ngx-grid
-  [columnDefs]="cols"
-  [rowData]="rows"
-  [gridOptions]="options"
-  (apiReady)="onApi($event)"
-  (rowClicked)="onRowClicked($event)"
-  (sortChanged)="onSortChanged($event)"
-  (selectionChanged)="onSelectionChanged($event)"
-  (pageChanged)="onPageChange($event)"
-></ngx-grid>
+  <div class="toolbar">
+    <label>Filtro global: </label>
+    <input type="text" [ngModel]="globalFilter()" (ngModelChange)="globalFilter.set($event)" placeholder="Digite para filtrar..." />
+    <span class="hint">Filtra em todas as colunas</span>
+  </div>
+
+  <ngx-grid
+    [rowData]="rowData"
+    [columnDefs]="columnDefs"
+    [gridOptions]="gridOptions"
+    [filterText]="globalFilter()"
+    [pageSizeOptions]="[5,10,25,50]">
+  </ngx-grid>
+</div>

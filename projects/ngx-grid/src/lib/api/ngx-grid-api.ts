@@ -96,7 +96,7 @@ export class NgxGridApi<T = any> implements NgxApiModel<T> {
   });
   public getVisibleRows = (): T[] => {
     const filtered = this._filter.apply(this._data.data());
-    const sorted = this._sort.sortRows(this._data.data());
+    const sorted = this._sort.sortRows(filtered);
     return this._pagination.apply(sorted);
   }
 }

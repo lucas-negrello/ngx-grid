@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
+import {Component, signal} from '@angular/core';
 import {NgxGridComponent} from '../../../ngx-grid/src/lib/ngx-grid.component';
 import {NgxGridApi} from '../../../ngx-grid/src/lib/api/ngx-grid-api';
-import {DEMO_USERS, demoServerFetcher, DemoUser} from './app.component.data';
 import {NgxColDef} from '../../../ngx-grid/src/lib/models/ngx-col-def.model';
 import {NgxGridOptions} from '../../../ngx-grid/src/lib/models/ngx-grid-options.model';
 import {
@@ -10,68 +9,51 @@ import {
   NgxOnSelectionChangesEvent,
   NgxOnSortChangesEvent
 } from '../../../ngx-grid/src/lib/models/events';
+import {FormsModule} from '@angular/forms';
+
+interface Person {
+  id: number;
+  name: string;
+  age: number;
+  email: string;
+}
 
 @Component({
   selector: 'app-root',
-  imports: [NgxGridComponent],
+  imports: [NgxGridComponent, FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'Ngx Grid Demo';
-  api!: NgxGridApi<DemoUser>;
+  api!: NgxGridApi<Person>;
 
-  rows: DemoUser[] = DEMO_USERS;
+  globalFilter = signal<string>('');
 
-  serverFetcher = demoServerFetcher;
+  rowData: Person[] = [
+    { id: 1, name: 'Alice Johnson', age: 28, email: 'alice@example.com' },
+    { id: 2, name: 'Bob Smith', age: 35, email: 'bob@work.com' },
+    { id: 3, name: 'Charlie Brown', age: 22, email: 'charlie@domain.org' },
+    { id: 4, name: 'Daniela Souza', age: 42, email: 'dani@empresa.com' },
+    { id: 5, name: 'Eduardo Lima', age: 30, email: 'edu@teste.com' },
+  ];
 
-  // Definições de colunas
-  cols: NgxColDef<DemoUser>[] = [
-    { field: 'id', headerName: 'ID', width: 80, align: 'right', sortable: true },
-    { field: 'name', headerName: 'Nome', width: 220, sortable: true },
-    { field: 'email', headerName: 'E-mail', width: 260, sortable: true },
-    { field: 'department', headerName: 'Departamento', width: 150, sortable: true },
-    { field: 'country', headerName: 'País', width: 120, sortable: true },
-    { field: 'age', headerName: 'Idade', width: 90, align: 'right', sortable: true },
-    {
-      field: 'salary',
-      headerName: 'Salário',
-      width: 120,
-      align: 'right',
-      sortable: true,
-      valueFormatter: ({ value }) =>
-        typeof value === 'number'
-          ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
-          : value,
-    },
-    {
-      field: 'joinDate',
-      headerName: 'Admissão',
-      width: 140,
-      sortable: true,
-      valueFormatter: ({ value }) =>
-        value instanceof Date ? value.toLocaleDateString('pt-BR') : new Date(value).toLocaleDateString('pt-BR'),
-    },
-    {
-      field: 'score',
-      headerName: 'Score',
-      width: 100,
-      align: 'right',
-      sortable: true,
-      valueFormatter: ({ value }) => (typeof value === 'number' ? value.toFixed(1) : value),
-    },
-    {
-      field: 'active',
-      headerName: 'Status',
-      width: 110,
-      sortable: true,
-      valueFormatter: ({ value }) => (value ? 'Ativo' : 'Inativo'),
-      cellClass: ({ value }) => (value ? 'text-green-700' : 'text-gray-500'),
-    },
+  columnDefs: NgxColDef<Person>[] = [
+    { field: 'id', headerName: 'ID', width: 80, sortable: true, filter: { enabled: false, operators: ['equals', 'gt', 'lt'] } },
+    { field: 'name', headerName: 'Nome', sortable: true, filter: { enabled: true, placeholder: 'Filtrar nome...' } },
+    { field: 'age', headerName: 'Idade', sortable: true, filter: { enabled: true, operators: ['equals', 'gt', 'gte', 'lt', 'lte'] } },
+    { field: 'email', headerName: 'Email', sortable: true, filter: { enabled: true } },
   ];
 
   // Opções do grid
-  options: NgxGridOptions<DemoUser> = {
+  gridOptions: NgxGridOptions<Person> = {
+    enableColumnFilter: true,
+    columnFilterDefaults: {
+      showPopup: true,
+      caseSensitive: false,
+      // Se quiser restringir globalmente:
+      // operators: ['contains', 'equals', 'startsWith', 'endsWith']
+    },
     paginationPageSize: 10,
 
     density: 'compact',
@@ -79,7 +61,7 @@ export class AppComponent {
     hoverHighlight: true,
     stickyHeader: true,
     tableClass: 'custom-table',
-    rowClass: ({ data }) => (data.active ? 'row-active' : 'row-inactive'),
+    rowClass: ({ data }) => ((data.age > 30) ? 'row-active' : 'row-inactive'),
 
     getRowId: ({ data }) => data.id,
     onRowClickChanges: (e) => console.log('Row clicked (options):', e),
@@ -88,25 +70,25 @@ export class AppComponent {
   };
 
   // Eventos (component outputs)
-  onApi(api: NgxGridApi<DemoUser>) {
+  onApi(api: NgxGridApi<Person>) {
     this.api = api;
     console.log('API pronta. Página atual:', api.getPageIndex(), 'Tamanho:', api.getPageSize());
     this.api.pageChanges$?.subscribe((p) => console.log('pageChange$', p));
   }
 
-  onRowClicked(e: NgxBaseEvent<DemoUser, NgxOnRowClickChangesEvent<DemoUser>>) {
+  onRowClicked(e: NgxBaseEvent<Person, NgxOnRowClickChangesEvent<Person>>) {
     console.log('Row clicked (output):', e.event);
   }
 
-  onSortChanged(e: NgxBaseEvent<DemoUser, NgxOnSortChangesEvent<DemoUser>>) {
+  onSortChanged(e: NgxBaseEvent<Person, NgxOnSortChangesEvent<Person>>) {
     console.log('Sort changed (output):', e.event.sortModel);
   }
 
-  onSelectionChanged(e: NgxBaseEvent<DemoUser, NgxOnSelectionChangesEvent<DemoUser>>) {
+  onSelectionChanged(e: NgxBaseEvent<Person, NgxOnSelectionChangesEvent<Person>>) {
     console.log('Selection changed (output):', e.event.selected.length);
   }
 
-  onPageChange(e: NgxBaseEvent<DemoUser, NgxOnPageChangesEvent<DemoUser>>) {
+  onPageChange(e: NgxBaseEvent<Person, NgxOnPageChangesEvent<Person>>) {
     console.log('Page changed (output):', e.event);
   }
 }

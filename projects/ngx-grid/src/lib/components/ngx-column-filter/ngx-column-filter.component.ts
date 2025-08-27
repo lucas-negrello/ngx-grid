@@ -4,10 +4,15 @@ import {NgxGridService} from '../../ngx-grid.service';
 import {NgxGridFilterService} from '../../services/ngx-grid-filter/ngx-grid-filter.service';
 import {NgxGridOptions} from '../../models/ngx-grid-options.model';
 import {NgxFilterOperator} from '../../models/types';
+import {NgStyle} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'ngx-column-filter',
-  imports: [],
+  imports: [
+    NgStyle,
+    FormsModule
+  ],
   templateUrl: './ngx-column-filter.component.html',
   styleUrl: './ngx-column-filter.component.scss'
 })
@@ -44,6 +49,9 @@ export class NgxColumnFilterComponent<T = any> {
   public readonly value = signal<any>('');
   public readonly caseSensitive = signal<boolean>(false);
 
+  private readonly _popupLeft = signal<string>('0px');
+  private readonly _popupTop = signal<string>('0px');
+
   public toggle = (e: MouseEvent) => {
     e.stopPropagation();
     if (!this.enabled() || !this.options().showPopup) return;
@@ -52,6 +60,9 @@ export class NgxColumnFilterComponent<T = any> {
     this.value.set(c?.value ?? '');
     this.caseSensitive.set(c?.caseSensitive ?? this.options().caseSensitive);
     this.open.update(v => !v);
+    setTimeout(() => {
+      this._repositionPopup(e);
+    });
   };
 
   public apply = () => {
@@ -89,8 +100,52 @@ export class NgxColumnFilterComponent<T = any> {
     'contains', 'equals', 'startsWith', 'endsWith', 'gt', 'gte', 'lt', 'lte', 'isEmpty', 'isNotEmpty'
   ];
 
-  @HostListener('document:click')
-  closeOnOutside = () => {
-    if (this.open()) this.open.set(false)
+  public getPopupLeft = (): string => this._popupLeft();
+  public getPopupTop = (): string => this._popupTop();
+
+  private _repositionPopup(e: MouseEvent) {
+    const anchor = (e.currentTarget as HTMLElement) || (e.target as HTMLElement);
+    const anchorEl = anchor?.closest('.nxg-column-filter') as HTMLElement || anchor as HTMLElement;
+    const popupEl = anchorEl?.querySelector('.nxg-filter__popup') as HTMLElement;
+    const rect = (anchorEl || anchor)?.getBoundingClientRect();
+
+    const fallbackWidth = 280;
+    const fallbackHeight = 220;
+
+    const popupRect = popupEl?.getBoundingClientRect();
+    const popupW = popupRect?.width || fallbackWidth;
+    const popupH = popupRect?.height || fallbackHeight;
+
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+
+    let left = rect ? rect.left : e.clientX;
+    let top = rect ? rect.bottom : e.clientY;
+
+    if (left + popupW > viewportW - 8) {
+      left = Math.max(8, viewportW - popupW - 8);
+    }
+    if (left < 8) left = 8;
+
+    if (top + popupH > viewportH - 8) {
+      const proposedTop = rect ? rect.top - popupH : (e.clientY - popupH);
+      top = proposedTop < 8 ? Math.max(8, viewportH - popupH - 8) : proposedTop;
+    }
+    if (top < 8) top = 8;
+
+    const pageLeft = left + window.scrollX;
+    const pageTop = top + window.scrollY;
+
+    this._popupLeft.set(`${pageLeft}px`);
+    this._popupTop.set(`${pageTop}px`);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocClick = (e: MouseEvent) => {
+    if (!this.open()) return;
+    const target = e.target as HTMLElement | null;
+    if (target && !target.closest('.nxg-column-filter')) {
+      this.open.set(false);
+    }
   };
 }

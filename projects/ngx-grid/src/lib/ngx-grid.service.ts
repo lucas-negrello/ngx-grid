@@ -38,7 +38,7 @@ export class NgxGridService<T = any> {
   public readonly effectiveColDefs = this._columnService.effectiveColDefs;
   public readonly processedRows = computed<T[]>(() => {
     const filtered = this._filterService.apply(this.data());
-    const sorted = this._sortService.sortRows(this.data());
+    const sorted = this._sortService.sortRows(filtered);
     return this._paginationService.apply(sorted);
   });
 
