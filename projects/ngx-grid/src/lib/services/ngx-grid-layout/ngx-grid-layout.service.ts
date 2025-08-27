@@ -1,4 +1,4 @@
-import {computed, effect, Injectable, Signal, signal} from '@angular/core';
+import {computed, effect, Injectable, Signal, signal, untracked} from '@angular/core';
 import {NgxColDef} from '../../models/ngx-col-def.model';
 import {NgxWidthPinState} from '../../models/ngx-grid-layout.model';
 import {NgxPinnedSide} from '../../models/types';
@@ -19,7 +19,8 @@ export class NgxGridLayoutService<T = any> {
       const defs = colDefs() ?? [];
       this._colDefs.set(defs);
 
-      const current = new Map(this._state());
+      const prev = untracked(() => this._state());
+      const current = new Map(prev);
       const ids = new Set<string | number>();
 
       for (const col of defs) {
@@ -41,14 +42,15 @@ export class NgxGridLayoutService<T = any> {
       [...current.keys()].forEach((id) => {
         if (!ids.has(id)) current.delete(id);
       });
-      this._state.set(current);
+      if (!this._mapEquals(prev, current))
+        this._state.set(current);
     });
   };
 
   public getColumnWidth =
     (colId: string | number): number => {
-      const st = this._state().get(colId)!;
-      if (!st?.width !== null) return this._clampWidth(colId, st.width!);
+      const st = this._state().get(colId);
+      if (st && st?.width !== null) return this._clampWidth(colId, st.width);
       const def = this._find(colId);
       const w = def?.width ?? this.DEFAULT_WIDTH;
       return this._clampWidth(colId, w);
@@ -70,6 +72,7 @@ export class NgxGridLayoutService<T = any> {
     (colId: string | number, width: number) => {
       const st = this._ensureState(colId);
       const clamped = this._clampWidth(colId, width);
+      if (st.width === clamped) return;
       const next = new Map(this._state());
       next.set(colId, { ...st, width: clamped });
       this._state.set(next);
@@ -78,6 +81,7 @@ export class NgxGridLayoutService<T = any> {
   public pinColumn =
     (colId: string | number, side: NgxPinnedSide) => {
       const st = this._ensureState(colId);
+      if (st.pinned === side) return;
       const next = new Map(this._state());
       next.set(colId, { ...st, pinned: side });
       this._state.set(next);
@@ -129,8 +133,8 @@ export class NgxGridLayoutService<T = any> {
 
   public readonly getPinnedOffset =
     (colId: string | number): number => {
-      if (this.isPinnedStart(colId)) this.pinnedOffsetsLeft().get(colId) ?? 0;
-      if (this.isPinnedEnd(colId)) this.pinnedOffsetsRight().get(colId) ?? 0;
+      if (this.isPinnedStart(colId)) return this.pinnedOffsetsLeft().get(colId) ?? 0;
+      if (this.isPinnedEnd(colId)) return this.pinnedOffsetsRight().get(colId) ?? 0;
       return 0;
     };
 
@@ -156,5 +160,20 @@ export class NgxGridLayoutService<T = any> {
     const max = this.getColumnMaxWidth(colId);
     return Math.min(Math.max(Math.floor(width), min), max);
   }
+
+  private _mapEquals =
+    (
+      a: Map<string | number, NgxWidthPinState>,
+      b: Map<string | number, NgxWidthPinState>
+    ): boolean => {
+      if (a === b) return true;
+      if (a.size !== b.size) return false;
+      for (const [key, av] of a) {
+        const bv = b.get(key);
+        if (!bv) return false;
+        if (av.width !== bv.width || av.pinned !== bv.pinned) return false;
+      }
+      return true;
+    }
 
 }

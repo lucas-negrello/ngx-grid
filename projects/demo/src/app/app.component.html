@@ -1,17 +1,26 @@
-<div class="demo-wrapper">
-  <h1>{{ title }}</h1>
-
-  <div class="toolbar">
-    <label>Filtro global: </label>
-    <input type="text" [ngModel]="globalFilter()" (ngModelChange)="globalFilter.set($event)" placeholder="Digite para filtrar..." />
-    <span class="hint">Filtra em todas as colunas</span>
-  </div>
-
-  <ngx-grid
-    [rowData]="rowData"
-    [columnDefs]="columnDefs"
-    [gridOptions]="gridOptions"
-    [filterText]="globalFilter()"
-    [pageSizeOptions]="[1,3,5,10]">
-  </ngx-grid>
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+  <label>
+    Filtro global:
+    <input type="text" [value]="globalFilter()" (input)="globalFilter.set($any($event.target).value)" />
+  </label>
 </div>
+
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+  <button (click)="pinStart('id')">Fixar ID à esquerda</button>
+  <button (click)="unpin('id')">Soltar ID</button>
+  <button (click)="pinEnd('email')">Fixar Email à direita</button>
+  <button (click)="unpin('email')">Soltar Email</button>
+</div>
+
+<ngx-grid
+  [rowData]="rowData"
+  [columnDefs]="columnDefs"
+  [gridOptions]="gridOptions"
+  [filterText]="globalFilter()"
+  (apiReady)="onApi($event)"
+  (rowClicked)="onRowClicked($event)"
+  (sortChanged)="onSortChanged($event)"
+  (selectionChanged)="onSelectionChanged($event)"
+  (pageChanged)="onPageChange($event)"
+>
+</ngx-grid>
