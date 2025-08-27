@@ -54,7 +54,7 @@ export class AppComponent {
       // Se quiser restringir globalmente:
       // operators: ['contains', 'equals', 'startsWith', 'endsWith']
     },
-    paginationPageSize: 10,
+    paginationPageSize: 2,
 
     density: 'compact',
     striped: true,

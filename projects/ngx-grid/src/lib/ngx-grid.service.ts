@@ -36,9 +36,9 @@ export class NgxGridService<T = any> {
   // Derivated State
   public readonly data = this._dataService.data;
   public readonly effectiveColDefs = this._columnService.effectiveColDefs;
+  public readonly filteredRows = computed<T[]>(() => this._filterService.apply(this.data()));
   public readonly processedRows = computed<T[]>(() => {
-    const filtered = this._filterService.apply(this.data());
-    const sorted = this._sortService.sortRows(filtered);
+    const sorted = this._sortService.sortRows(this.filteredRows());
     return this._paginationService.apply(sorted);
   });
 
@@ -113,6 +113,10 @@ export class NgxGridService<T = any> {
     this._selectionService.bind(inputs.gridOptions, inputs.rowSelection, this.data);
     this._paginationService.bind(this.data, inputs.gridOptions()?.paginationPageSize ?? 25);
     this._filterService.bind(this.effectiveColDefs, inputs.gridOptions, this._valueService, inputs.filterText, inputs.columnFilters);
+
+    effect(() => {
+      this._paginationService.setTotalOverride(this.filteredRows().length);
+    });
 
     effect(() => {
       const size = inputs.gridOptions()?.paginationPageSize ?? 25;

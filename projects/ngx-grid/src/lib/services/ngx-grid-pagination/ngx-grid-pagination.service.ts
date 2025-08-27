@@ -101,7 +101,6 @@ export class NgxGridPaginationService<T = any> {
   });
   private _clientSideEffect = () => effect(() => {
     if (this._mode() !== 'client') return;
-    this._totalOverride.set(null);
     const max = Math.max(0, this.totalPages() - 1);
     if (this._pageIndex() > max) this._pageIndex.set(max);
   })
@@ -140,7 +139,6 @@ export class NgxGridPaginationService<T = any> {
         if (mode === 'client') {
           this._loading.set(false);
           this._error.set(null);
-          this._totalOverride.set(null);
         }
       }
 
@@ -178,5 +176,13 @@ export class NgxGridPaginationService<T = any> {
     (opts?: NgxPageRefreshOptions)=> {
       if (!opts?.keepPage) this.first();
       else this.setPageIndex(this._pageIndex());
-    }
+    };
+
+  public setTotalOverride =
+    (total: number | null) => {
+      const safe = total === null ? null : Math.max(0, Math.floor(total));
+      this._totalOverride.set(safe);
+      const max = Math.max(0, this.totalPages() - 1);
+      if (this._pageIndex() > max) this._pageIndex.set(max);
+    };
 }
