@@ -213,3 +213,17 @@ th, td {
   margin-left: 6px;
   cursor: default;
 }
+
+.ngx-col-resizer:hover {
+  background:
+    linear-gradient(to right,
+      transparent 2px,
+      rgba(0,0,0,.25) 2px,
+      rgba(0,0,0,.25) 3px,
+      transparent 3px
+    );
+}
+
+body.ngx-resize-cursor {
+  cursor: col-resize !important;
+}

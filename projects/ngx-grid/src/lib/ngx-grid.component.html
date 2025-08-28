@@ -28,6 +28,7 @@
             (click)="onHeaderClick(col, $event)"
             [attr.aria-sort]="getSortFor(col) === 'none' ? 'none' : (getSortFor(col) === 'asc' ? 'ascending' : 'descending')"
             scope="col"
+            [ngStyle]="getHeaderCellStyle(col)"
           >
             @if (headerTemplateMap().get(String(col.colId)); as hTpl) {
               <ng-container [ngTemplateOutlet]="hTpl.template"></ng-container>
@@ -72,7 +73,12 @@
             [attr.aria-selected]="isSelected(row, i)"
           >
             @for (col of effectiveColDefs(); track col.colId) {
-              <td class="nxg-td" [ngClass]="getCellClassList(row, col, i)" [style.text-align]="col.align || 'left'">
+              <td
+                class="nxg-td"
+                [ngClass]="getCellClassList(row, col, i)"
+                [style.text-align]="col.align || 'left'"
+                [ngStyle]="getBodyCellStyle(col)"
+              >
                 @if (cellTemplateMap().get(String(col.colId)); as cTpl) {
                   <ng-container
                     [ngTemplateOutlet]="cTpl.template"

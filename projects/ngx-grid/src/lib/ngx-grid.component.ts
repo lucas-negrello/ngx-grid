@@ -21,7 +21,7 @@ import {
 } from './models/events';
 import {NgxCellTemplateDirective} from './directives/ngx-cell-template.directive';
 import {NgxHeaderTemplateDirective} from './directives/ngx-header-template.directive';
-import {NgClass, NgTemplateOutlet} from '@angular/common';
+import {NgClass, NgStyle, NgTemplateOutlet} from '@angular/common';
 import {NgxGridApi} from './api/ngx-grid-api';
 import {NgxGridDataService} from './services/ngx-grid-data/ngx-grid-data.service';
 import {NgxGridColumnService} from './services/ngx-grid-column/ngx-grid-column.service';
@@ -43,7 +43,8 @@ import {NgxColumnResizerDirective} from './directives/ngx-collumn-resizer.direct
     NgTemplateOutlet,
     NgClass,
     NgxColumnFilterComponent,
-    NgxColumnResizerDirective
+    NgxColumnResizerDirective,
+    NgStyle
   ],
   templateUrl: './ngx-grid.component.html',
   styleUrl: './ngx-grid.component.scss',
@@ -176,6 +177,9 @@ export class NgxGridComponent<T = any> implements AfterContentInit {
   public onPaginationPrev = (): void => this.grid.onPaginationPrev();
   public onPaginationNext = (): void => this.grid.onPaginationNext();
   public onPaginationLast = (): void => this.grid.onPaginationLast();
+
+  public getHeaderCellStyle = (col: NgxColDef<T>) => this.grid.getHeaderCellStyle(col);
+  public getBodyCellStyle = (col: NgxColDef<T>) => this.grid.getBodyCellStyle(col);
 
   public trackRow: TrackByFunction<T> = (i, item) => this.grid.trackRow(i, item);
 

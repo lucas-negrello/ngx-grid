@@ -1,22 +1,8 @@
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-  <label>
-    Filtro global:
-    <input type="text" [value]="globalFilter()" (input)="globalFilter.set($any($event.target).value)" />
-  </label>
-</div>
-
-<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-  <button (click)="pinStart('id')">Fixar ID à esquerda</button>
-  <button (click)="unpin('id')">Soltar ID</button>
-  <button (click)="pinEnd('email')">Fixar Email à direita</button>
-  <button (click)="unpin('email')">Soltar Email</button>
-</div>
-
 <ngx-grid
+  #gridHost
   [rowData]="rowData"
   [columnDefs]="columnDefs"
   [gridOptions]="gridOptions"
-  [filterText]="globalFilter()"
   (apiReady)="onApi($event)"
   (rowClicked)="onRowClicked($event)"
   (sortChanged)="onSortChanged($event)"
